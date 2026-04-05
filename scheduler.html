@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ארז | קביעת שיעור</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Sans+Hebrew:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9952a;
+      --gold-hover: #b07e1a;
+      --gold-bg: rgba(201,149,42,0.08);
+      --cream: #faf8f3;
+      --navy: #1a2744;
+      --text: #2c2c2a;
+      --muted: #6b6860;
+      --border: rgba(0,0,0,0.09);
+      --white: #ffffff;
+      --green: #2d7a4f;
+      --green-bg: #eaf5ee;
+      --red: #a32d2d;
+      --red-bg: #fcebeb;
+      --nav-w: 200px;
+    }
+
+    body {
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      direction: rtl;
+      color: var(--text);
+      background: var(--cream);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== ניווט צדדי ===== */
+    .nav {
+      position: fixed;
+      top: 0; right: 0;
+      width: var(--nav-w);
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 0;
+      z-index: 100;
+      box-shadow: -2px 0 12px rgba(0,0,0,0.15);
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif Hebrew', serif;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0 1.2rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 0.8rem;
+    }
+
+    .nav-logo span {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1.2rem;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-right: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .nav-item.active { color: #fff; border-right-color: var(--gold); background: rgba(255,255,255,0.08); }
+    .nav-item .ni { font-size: 1rem; }
+
+    .nav-bottom {
+      margin-top: auto;
+      padding: 0 1.2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 1rem;
+    }
+
+    .nav-exit {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .nav-exit:hover { color: #fff; }
+
+    /* ===== תוכן ראשי ===== */
+    .main {
+      margin-right: var(--nav-w);
+      padding: 1.5rem;
+      max-width: 700px;
+    }
+
+    .page-header {
+      padding: 1rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Noto Serif Hebrew', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .page-header p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ===== כרטיס ===== */
+    .card {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'Noto Serif Hebrew', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+    }
+
+    /* ===== טופס ===== */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .form-group { margin-bottom: 0.8rem; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
+
+    input[type="text"], input[type="tel"], input[type="email"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 0.5px solid rgba(0,0,0,0.18);
+      border-radius: 8px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color 0.2s;
+    }
+
+    input:focus { outline: none; border-color: var(--gold); }
+    input.error { border-color: var(--red); }
+
+    .field-error { font-size: 0.72rem; color: var(--red); margin-top: 3px; }
+
+    /* ===== בחירת שבוע ===== */
+    .week-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .week-btn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      border: 0.5px solid var(--border);
+      background: var(--white);
+      color: var(--navy);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .week-btn:hover { border-color: var(--gold); }
+    .week-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ===== לוח שעות ===== */
+    .schedule-grid { display: flex; flex-direction: column; gap: 0.8rem; }
+
+    .day-row { }
+    .day-label { font-size: 0.82rem; font-weight: 500; color: var(--navy); margin-bottom: 0.4rem; }
+    .day-date { font-size: 0.72rem; color: var(--muted); margin-right: 6px; }
+
+    .time-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .slot {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 0.5px solid rgba(26,39,68,0.2);
+      background: var(--white);
+      color: var(--navy);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .slot:hover:not(.taken):not(.selected) { border-color: var(--gold); background: var(--gold-bg); }
+    .slot.selected { background: rgba(201,149,42,0.18); border-color: var(--gold); color: #7a5a10; font-weight: 500; }
+    .slot.taken { background: #f0f0f0; color: #bbb; border-color: #e0e0e0; cursor: not-allowed; text-decoration: line-through; }
+
+    /* ===== הודעה ===== */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .alert.show { display: block; }
+    .alert-success { background: var(--green-bg); color: var(--green); }
+    .alert-error   { background: var(--red-bg);   color: var(--red); }
+    .alert-info    { background: var(--gold-bg);   color: #7a5a10; }
+
+    /* ===== כפתורים ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 8px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-gold  { background: var(--gold);  color: #fff; width: 100%; }
+    .btn-gold:hover { background: var(--gold-hover); }
+    .btn-navy  { background: var(--navy);  color: #fff; }
+    .btn-navy:hover { background: #0f1a30; }
+    .btn-outline { background: transparent; color: var(--navy); border: 0.5px solid var(--border); }
+    .btn-outline:hover { background: var(--cream); }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 0.5px solid rgba(163,45,45,0.2); font-size: 0.78rem; padding: 4px 10px; }
+
+    /* ===== רשימת שיעורים ===== */
+    .lesson-item {
+      background: var(--cream);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .lesson-icon { font-size: 1.1rem; }
+    .lesson-info { flex: 1; }
+    .lesson-time { font-weight: 500; font-size: 0.88rem; color: var(--navy); }
+    .lesson-status { font-size: 0.75rem; margin-top: 2px; }
+    .lesson-cancel { font-size: 0.72rem; }
+
+    /* ===== הודעת פרונטלי ===== */
+    .frontal-notice {
+      background: var(--gold-bg);
+      border: 1px solid rgba(201,149,42,0.3);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-size: 0.82rem;
+      color: #7a5a10;
+      margin-bottom: 1rem;
+    }
+
+    /* ===== דיאלוג אישור ===== */
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      display: none;
+    }
+
+    .dialog-overlay.show { display: flex; }
+
+    .dialog {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .dialog h3 { font-family: 'Noto Serif Hebrew', serif; font-size: 1rem; color: var(--navy); margin-bottom: 0.5rem; }
+    .dialog p  { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .dialog-btns { display: flex; gap: 0.6rem; }
+    .dialog-btns .btn { flex: 1; }
+
+    /* ===== חיפוש ===== */
+    .search-bar {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.85rem;
+      background: var(--cream);
+      color: var(--text);
+      margin-bottom: 0.8rem;
+    }
+
+    .search-bar:focus { outline: none; border-color: var(--gold); }
+
+    /* ===== spinner ===== */
+    .spinner { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.82rem; }
+
+    /* ===== views ===== */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    #nav-back-mobile { display: none !important; }
+
+    /* ===== mobile ===== */
+    @media (max-width: 600px) {
+      .nav { width: 100%; height: auto; flex-direction: row; position: fixed; bottom: 0; top: auto; right: 0; padding: 0; box-shadow: 0 -2px 12px rgba(0,0,0,0.15); }
+      .nav-logo { display: none; }
+      .nav-bottom { display: none !important; }
+      .nav-item { flex-direction: column; flex: 1; font-size: 0.58rem; padding: 0.45rem 0.2rem; gap: 0.15rem; border-right: none; border-top: 3px solid transparent; min-width: 0; overflow: hidden; }
+      .nav-item .ni { font-size: 1.1rem; }
+      .nav-item.active { border-top-color: var(--gold); border-right-color: transparent; }
+      .main { margin-right: 0; padding: 1rem; padding-bottom: 5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      #nav-back-mobile { display: flex !important; }
+      #nav-back-mobile.hidden { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== ניווט ===== -->
+<nav class="nav">
+  <div class="nav-logo">ארז <span>מורה פרטי</span></div>
+  <div class="nav-item active" onclick="showView('book')" id="nav-book">
+    <span class="ni">📅</span> קביעת שיעור
+  </div>
+  <div class="nav-item" onclick="showView('my')" id="nav-my">
+    <span class="ni">📋</span> השיעורים שלי
+  </div>
+  <div class="nav-item" id="nav-back-mobile" style="display:none;" onclick="localStorage.removeItem('fromAdmin'); window.location.href='erezapf-admin.html'">
+    <span class="ni">🔙</span> חזרה למנהל
+  </div>
+  <div class="nav-bottom">
+    <div class="nav-exit" onclick="switchUser()" style="margin-bottom:0.5rem;">
+      <span>🔄</span> החלף תלמיד
+    </div>
+    <div id="nav-back-admin" class="nav-exit" style="display:none; margin-bottom:0.5rem;" onclick="localStorage.removeItem('fromAdmin'); window.location.href='erezapf-admin.html'">
+      <span>🔙</span> חזרה למנהל
+    </div>
+    <div class="nav-exit" onclick="confirmExit()">
+      <span>🚪</span> יציאה מהאתר
+    </div>
+  </div>
+</nav>
+
+<!-- ===== תוכן ===== -->
+<main class="main">
+
+  <div id="global-alert" class="alert"></div>
+
+  <!-- ===== קביעת שיעור ===== -->
+  <div id="view-book" class="view active">
+    <div class="page-header">
+      <h1>קביעת שיעור</h1>
+      <p>בחר זמן מתאים ושלח בקשה לאישור</p>
+    </div>
+
+    <div class="frontal-notice">
+      💡 שיעורים מתקיימים בזום. לשיעור פרונטלי — רצוי ליצור קשר ישירות עם ארז לפני הבחירה.
+      <br>ביטול שיעור אפשרי עד 24 שעות לפני המועד שנקבע.
+    </div>
+
+    <div class="card">
+      <div class="card-title">פרטים אישיים</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>שם מלא <span style="color:var(--red);">*</span></label>
+          <input type="text" id="s-name" placeholder="ישראל ישראלי" onblur="saveStudentData()" />
+          <div class="field-error" id="err-name"></div>
+        </div>
+        <div class="form-group">
+          <label>טלפון <span style="color:var(--red);">*</span></label>
+          <input type="tel" id="s-phone" placeholder="05X-XXXXXXX" maxlength="11" oninput="onPhoneInput(this)" onkeydown="onPhoneKeydown(event,this)" />
+          <div class="field-error" id="err-phone"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>אימייל <span style="color:var(--red);">*</span></label>
+        <input type="email" id="s-email" placeholder="example@gmail.com" onblur="saveStudentData()" />
+        <div class="field-error" id="err-email"></div>
+      </div>
+      <div class="form-group">
+        <label>יישוב <span style="color:var(--red);">*</span></label>
+        <input type="text" id="s-city" placeholder="תל אביב, חיפה..." onblur="saveStudentData()" />
+        <div class="field-error" id="err-city"></div>
+      </div>
+      <p style="font-size:0.73rem; color:var(--muted); margin-top:0.4rem;">* חובה למלא</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">בחר שבוע</div>
+      <div class="week-selector" id="week-selector"></div>
+      <div class="schedule-grid" id="student-schedule">
+        <div class="spinner">טוען זמנים...</div>
+      </div>
+      <p style="font-size:0.75rem; color:var(--muted); margin-top:0.8rem;">ניתן לבחור עד 3 זמנים</p>
+    </div>
+
+    <button class="btn btn-gold" onclick="submitRequest()">שלח בקשה לאישור ←</button>
+    <div style="margin-top:0.6rem;">
+      <a href="index.html" class="btn btn-outline" style="width:100%; margin-top:0.4rem;">← חזרה לדף הראשי</a>
+    </div>
+  </div>
+
+  <!-- ===== השיעורים שלי ===== -->
+  <div id="view-my" class="view">
+    <div class="page-header">
+      <h1>השיעורים שלי</h1>
+      <p>הזן טלפון לצפייה בשיעורים שלך</p>
+    </div>
+    <div class="card">
+      <div style="display:flex; gap:0.6rem; margin-bottom:1rem;">
+        <input type="tel" id="my-phone" placeholder="05X-XXXXXXX" style="flex:1;" maxlength="11" />
+        <button class="btn btn-navy" onclick="loadMyLessons()">הצג</button>
+      </div>
+      <div id="my-lessons-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== היסטוריה ===== -->
+  <div id="view-history" class="view">
+    <div class="page-header">
+      <h1>היסטוריית פניות</h1>
+      <p>הזן טלפון לצפייה בהיסטוריה שלך</p>
+    </div>
+    <div class="card">
+      <div style="display:flex; gap:0.6rem; margin-bottom:1rem;">
+        <input type="tel" id="hist-phone" placeholder="05X-XXXXXXX" style="flex:1;" maxlength="11" />
+        <button class="btn btn-navy" onclick="loadHistory()">הצג</button>
+      </div>
+      <input type="text" class="search-bar" id="hist-search" placeholder="חיפוש..." oninput="filterHistory()" style="display:none;" />
+      <div style="display:none; gap:6px; margin-bottom:0.8rem; flex-wrap:wrap; align-items:center;" id="hist-sort-row">
+        <span style="font-size:0.78rem; color:var(--muted);">מיון:</span>
+        <select onchange="historySortDir=this.value; renderHistory()" style="padding:4px 8px; border:0.5px solid var(--border); border-radius:6px; font-size:0.78rem; background:var(--cream);">
+          <option value="asc">↑ תאריך עולה</option>
+          <option value="desc">↓ תאריך יורד</option>
+        </select>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== דיאלוג קליטה ===== -->
+<div class="dialog-overlay" id="success-dialog">
+  <div class="dialog">
+    <div style="font-size:2.5rem; margin-bottom:0.8rem;">✅</div>
+    <h3>הבקשה נקלטה!</h3>
+    <p>ארז יאשר את הבקשה בהקדם. תוכל לעקוב אחר הסטטוס תחת "השיעורים שלי".</p>
+    <button class="btn btn-navy" style="width:100%; margin-top:0.5rem;" onclick="closeDialog('success-dialog')">סגור</button>
+  </div>
+</div>
+<div class="dialog-overlay" id="exit-dialog">
+  <div class="dialog">
+    <h3>יציאה מהאתר</h3>
+    <p>האם אתה בטוח שברצונך לצאת?</p>
+    <div class="dialog-btns">
+      <button class="btn btn-outline" onclick="closeDialog('exit-dialog')">ביטול</button>
+      <button class="btn btn-navy" onclick="window.location.href='index.html'">יציאה</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== דיאלוג ביטול שיעור ===== -->
+<div class="dialog-overlay" id="cancel-dialog">
+  <div class="dialog">
+    <h3>ביטול שיעור</h3>
+    <p id="cancel-dialog-text">האם לבטל את השיעור? יש להודיע למורה טלפונית בנוסף.</p>
+    <div class="dialog-btns">
+      <button class="btn btn-outline" onclick="closeDialog('cancel-dialog')">ביטול</button>
+      <button class="btn btn-red" onclick="confirmCancelLesson()">אשר ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, update, remove, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCQTxJbPmhKOb76zguPaXB_K8E3GwWx6yQ",
+    authDomain:        "erez-teacher.firebaseapp.com",
+    databaseURL:       "https://erez-teacher-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "erez-teacher",
+    storageBucket:     "erez-teacher.firebasestorage.app",
+    messagingSenderId: "364569139715",
+    appId:             "1:364569139715:web:ef21e7fe86c198fc908c36"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  /* ===== עזרים ===== */
+  const DAYS_HE = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+
+  function getWeekStart(offset = 0) {
+    const now = new Date();
+    const day = now.getDay();
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() - day + offset * 7);
+    sunday.setHours(0,0,0,0);
+    return sunday;
+  }
+
+  function formatDate(d) {
+    const day   = String(d.getDate()).padStart(2,'0');
+    const month = String(d.getMonth()+1).padStart(2,'0');
+    return day + '/' + month;
+  }
+
+  function formatFullDate(d) {
+    return d.toLocaleDateString('he-IL', { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' });
+  }
+
+  function parsePhone(p) {
+    return p.replace(/[-\s]/g,'');
+  }
+
+  function validatePhone(p) {
+    /* פורמט: 05X-XXXXXXX — הספרה הראשונה 0, השנייה 5, השלישית כל ספרה, מקף, 7 ספרות */
+    return /^05\d-\d{7}$/.test(p) || /^05\d{8}$/.test(parsePhone(p));
+  }
+
+  function formatPhone(p) {
+    const clean = parsePhone(p);
+    if (clean.length === 10) return clean.slice(0,3) + '-' + clean.slice(3);
+    return p;
+  }
+
+  function validateEmail(e) {
+    if (!e) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  /* ===== ניווט ===== */
+  window.showView = function(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+  };
+
+  window.switchUser = function() {
+    clearSession();
+    showAlert('הפרטים נמחקו. ניתן להזין טלפון חדש.', 'info');
+    showView('book');
+  };
+
+  window.confirmExit = function() {
+    document.getElementById('exit-dialog').classList.add('show');
+  };
+
+  window.closeDialog = function(id) {
+    document.getElementById(id).classList.remove('show');
+  };
+
+  /* ===== הודעה ===== */
+  function showAlert(text, type) {
+    const el = document.getElementById('global-alert');
+    el.className = 'alert alert-' + type + ' show';
+    el.textContent = text;
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  /* ===== זיכרון סשן + localStorage ===== */
+  let sessionPhone = '';
+
+  function setSessionPhone(phone) {
+    sessionPhone = phone;
+    localStorage.setItem('erez_phone', phone);
+    const formatted = phone.slice(0,3) + '-' + phone.slice(3);
+    document.getElementById('s-phone').value    = formatted;
+    document.getElementById('my-phone').value   = formatted;
+    document.getElementById('hist-phone').value  = formatted;
+  }
+
+  function clearSession() {
+    sessionPhone = '';
+    localStorage.removeItem('erez_phone');
+    document.getElementById('s-phone').value    = '';
+    document.getElementById('s-name').value     = '';
+    document.getElementById('s-email').value    = '';
+    document.getElementById('my-phone').value   = '';
+    document.getElementById('hist-phone').value  = '';
+    document.getElementById('my-lessons-list').innerHTML = '';
+    document.getElementById('history-list').innerHTML    = '';
+  }
+
+  /* מיסכה אוטומטית לטלפון */
+  window.onPhoneInput = function(el) {
+    let val = el.value.replace(/\D/g, ''); // רק ספרות
+    const err = document.getElementById('err-phone');
+
+    // הגבל ל-10 ספרות
+    if (val.length > 10) val = val.slice(0, 10);
+
+    // הוסף מקף אחרי 3 ספרות
+    if (val.length > 3) {
+      el.value = val.slice(0,3) + '-' + val.slice(3);
+    } else {
+      el.value = val;
+    }
+
+    // הודעת שגיאה מיידית אם הספרה השנייה אינה 5
+    if (val.length >= 2 && val[1] !== '5') {
+      err.textContent = 'מספר חייב להתחיל ב-05X';
+    } else if (val.length === 10) {
+      err.textContent = '';
+      autoFillFromPhone(el.value);
+    } else {
+      err.textContent = '';
+    }
+  };
+
+  window.onPhoneKeydown = function(e, el) {
+    // מנע הקלדת תווים לא מספריים (פרט ל-Backspace, Delete, Tab, חצים)
+    if (e.key.length === 1 && !/\d/.test(e.key)) e.preventDefault();
+  };
+
+  /* ===== מילוי אוטומטי שם ואימייל לפי טלפון מ-Firebase ===== */
+  async function autoFillFromPhone(phone) {
+    if (!validatePhone(phone)) return;
+    const clean = parsePhone(phone);
+    setSessionPhone(clean);
+
+    /* חפש ברשימת התלמידים השמורה */
+    const studentSnap = await get(ref(db, 'students/' + clean));
+    if (studentSnap.exists()) {
+      const s = studentSnap.val();
+      if (s.name  && !document.getElementById('s-name').value)  document.getElementById('s-name').value  = s.name;
+      if (s.email && !document.getElementById('s-email').value) document.getElementById('s-email').value = s.email;
+      if (s.city  && !document.getElementById('s-city').value)  document.getElementById('s-city').value  = s.city;
+      return;
+    }
+
+    /* אם לא נמצא ברשימה — חפש בבקשות קיימות */
+    const snap = await get(ref(db, 'requests'));
+    if (!snap.exists()) return;
+    const match = Object.values(snap.val()).find(r => r.phone === clean);
+    if (match) {
+      if (match.name  && !document.getElementById('s-name').value)  document.getElementById('s-name').value  = match.name;
+      if (match.email && !document.getElementById('s-email').value) document.getElementById('s-email').value = match.email;
+      if (match.city  && !document.getElementById('s-city').value)  document.getElementById('s-city').value  = match.city;
+    }
+  }
+
+  /* שמירת נתוני תלמיד ב-Firebase */
+  window.saveStudentData = async function() {
+    const phone = parsePhone(document.getElementById('s-phone').value.trim());
+    if (!phone || phone.length < 10) return;
+    const name  = document.getElementById('s-name').value.trim();
+    const email = document.getElementById('s-email').value.trim();
+    const city  = document.getElementById('s-city').value.trim();
+    const existing = (await get(ref(db, 'students/' + phone))).val() || {};
+    const updated = { ...existing, updatedAt: Date.now() };
+    if (name)  updated.name  = name;
+    if (email) updated.email = email;
+    if (city)  updated.city  = city;
+    await set(ref(db, 'students/' + phone), updated);
+  }
+
+  /* ===== רישום לוג פעולות ===== */
+  async function logAction({ reqId, name, phone, email, city, slot, action, status, by }) {
+    const logRef = push(ref(db, 'log'));
+    await set(logRef, {
+      reqId:     reqId || '',
+      name:      name  || '',
+      phone:     phone || '',
+      email:     email || '',
+      city:      city  || '',
+      slot:      slot  || '',
+      action,
+      status,
+      by,
+      timestamp: Date.now()
+    });
+  }
+
+  /* ===== לוח זמנים ===== */
+  let schedule = [];
+  let selectedSlots = new Set();
+  let currentWeekOffset = 0;
+  let allRequests = {};
+  let extraWeeks = 4; // ברירת מחדל — 4 שבועות קדימה
+
+  async function loadSchedule() {
+    const snap = await get(ref(db, 'schedule'));
+    schedule = snap.exists() ? snap.val() : [];
+    const ewSnap = await get(ref(db, 'settings/extraWeeks'));
+    if (ewSnap.exists()) extraWeeks = ewSnap.val();
+
+    /* טעינת טלפון שמור */
+    const saved = localStorage.getItem('erez_phone');
+    if (saved) {
+      sessionPhone = saved;
+      const formatted = saved.slice(0,3) + '-' + saved.slice(3);
+      document.getElementById('s-phone').value    = formatted;
+      document.getElementById('my-phone').value   = formatted;
+      document.getElementById('hist-phone').value  = formatted;
+      await autoFillFromPhone(formatted);
+    }
+
+    renderWeekSelector();
+    await loadRequests();
+    renderStudentSchedule();
+  }
+
+  async function loadRequests() {
+    const snap = await get(ref(db, 'requests'));
+    allRequests = snap.exists() ? snap.val() : {};
+  }
+
+  function renderWeekSelector() {
+    const container = document.getElementById('week-selector');
+    container.innerHTML = '';
+    for (let i = 0; i <= extraWeeks; i++) {
+      const ws = getWeekStart(i);
+      const we = new Date(ws); we.setDate(ws.getDate() + 6);
+      const btn = document.createElement('div');
+      btn.className = 'week-btn' + (i === currentWeekOffset ? ' active' : '');
+      btn.textContent = formatDate(ws) + ' — ' + formatDate(we);
+      btn.onclick = () => { currentWeekOffset = i; renderWeekSelector(); renderStudentSchedule(); };
+      container.appendChild(btn);
+    }
+  }
+
+  function renderStudentSchedule() {
+    const container = document.getElementById('student-schedule');
+    container.innerHTML = '';
+    if (!schedule.length) { container.innerHTML = '<div class="spinner">אין זמנים זמינים</div>'; return; }
+
+    const takenSlots = new Set();
+    Object.values(allRequests).forEach(r => {
+      (r.slots || []).forEach(s => {
+        if (r.status === 'approved' || r.status === 'pending') takenSlots.add(s);
+      });
+    });
+
+    const ws = getWeekStart(currentWeekOffset);
+
+    schedule.forEach(dayObj => {
+      const dayIndex = DAYS_HE.indexOf(dayObj.day);
+      if (dayIndex < 0) return;
+      const dayDate = new Date(ws);
+      dayDate.setDate(ws.getDate() + dayIndex);
+      if (dayDate < new Date()) return; // דילוג על ימים שעברו
+
+      const row = document.createElement('div');
+      row.className = 'day-row';
+
+      const label = document.createElement('div');
+      label.className = 'day-label';
+      label.innerHTML = dayObj.day + ' <span class="day-date">' + formatDate(dayDate) + '</span>';
+      row.appendChild(label);
+
+      const slots = document.createElement('div');
+      slots.className = 'time-slots';
+
+      dayObj.times.forEach(t => {
+        const key = dayObj.day + '_' + formatDate(dayDate) + '_' + t;
+        const btn = document.createElement('div');
+        btn.className = 'slot';
+        btn.textContent = t;
+        btn.dataset.key = key;
+
+        if (takenSlots.has(key)) {
+          btn.classList.add('taken');
+        } else if (selectedSlots.has(key)) {
+          btn.classList.add('selected');
+          btn.onclick = () => toggleSlot(btn);
+        } else {
+          btn.onclick = () => toggleSlot(btn);
+        }
+        slots.appendChild(btn);
+      });
+
+      row.appendChild(slots);
+      container.appendChild(row);
+    });
+
+    if (!container.children.length) {
+      container.innerHTML = '<div class="spinner">אין זמנים זמינים לשבוע זה</div>';
+    }
+  }
+
+  window.toggleSlot = function(btn) {
+    const key = btn.dataset.key;
+    if (selectedSlots.has(key)) {
+      selectedSlots.delete(key);
+      btn.classList.remove('selected');
+    } else {
+      if (selectedSlots.size >= 3) { showAlert('ניתן לבחור עד 3 זמנים בלבד בכל בקשה', 'error'); return; }
+      selectedSlots.add(key);
+      btn.classList.add('selected');
+    }
+  };
+
+  /* ===== שליחת בקשה ===== */
+  window.submitRequest = async function() {
+    const name  = document.getElementById('s-name').value.trim();
+    const phone = document.getElementById('s-phone').value.trim();
+    const email = document.getElementById('s-email').value.trim();
+    const city  = document.getElementById('s-city').value.trim();
+
+    let valid = true;
+    document.getElementById('err-name').textContent  = '';
+    document.getElementById('err-phone').textContent = '';
+    document.getElementById('err-email').textContent = '';
+    document.getElementById('err-city').textContent  = '';
+    document.getElementById('s-name').classList.remove('error');
+    document.getElementById('s-phone').classList.remove('error');
+    document.getElementById('s-email').classList.remove('error');
+    document.getElementById('s-city').classList.remove('error');
+
+    if (!name) {
+      document.getElementById('err-name').textContent = 'שדה חובה';
+      document.getElementById('s-name').classList.add('error');
+      valid = false;
+    }
+    if (!validatePhone(phone)) {
+      document.getElementById('err-phone').textContent = 'פורמט לא תקין — נדרש: 05X-XXXXXXX (לדוגמה: 052-5257189)';
+      document.getElementById('s-phone').classList.add('error');
+      valid = false;
+    }
+    if (!email) {
+      document.getElementById('err-email').textContent = 'שדה חובה';
+      document.getElementById('s-email').classList.add('error');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      document.getElementById('err-email').textContent = 'כתובת אימייל לא תקינה';
+      document.getElementById('s-email').classList.add('error');
+      valid = false;
+    }
+    if (!city) {
+      document.getElementById('err-city').textContent = 'שדה חובה';
+      document.getElementById('s-city').classList.add('error');
+      valid = false;
+    }
+    if (selectedSlots.size === 0) { showAlert('נא לבחור לפחות זמן אחד', 'error'); return; }
+    if (!valid) {
+      /* גלול לראש הדף כדי שהתלמיד יראה את השגיאות */
+      document.querySelector('.main').scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showAlert('יש לתקן את הפרטים המסומנים באדום', 'error');
+      return;
+    }
+
+    /* בדיקת מכסה — מקסימום 3 שיעורים עתידיים (מאושרים + ממתינים בלבד, לא נדחים) */
+    const cleanPhone = parsePhone(phone);
+    const snap = await get(ref(db, 'requests'));
+    let activeCount = 0;
+    if (snap.exists()) {
+      Object.values(snap.val()).forEach(r => {
+        if (r.phone === cleanPhone && (r.status === 'approved' || r.status === 'pending')) {
+          activeCount += (r.slots||[]).length;
+        }
+      });
+    }
+    const total = activeCount + selectedSlots.size;
+    if (total > 3) {
+      showAlert(`יש לך כבר ${activeCount} שיעורים פעילים. ניתן לבקש עד 3 שיעורים בסה"כ (מאושרים + ממתינים).`, 'error');
+      return;
+    }
+
+    const newRef = push(ref(db, 'requests'));
+    const reqId = newRef.key;
+    await set(newRef, {
+      name,
+      phone: cleanPhone,
+      email,
+      city,
+      slots: [...selectedSlots],
+      status: 'pending',
+      timestamp: Date.now()
+    });
+
+    /* רישום לוג */
+    for (const slot of selectedSlots) {
+      await logAction({ reqId, name, phone: cleanPhone, email, city, slot, action: 'נקלטה', status: 'ממתין לאישור', by: 'תלמיד' });
+    }
+
+    /* שמור/עדכן תלמיד ב-Firebase */
+    await set(ref(db, 'students/' + cleanPhone), { name, email, city, updatedAt: Date.now() });
+    setSessionPhone(cleanPhone);
+    saveStudentData();
+
+    selectedSlots.clear();
+    document.getElementById('s-name').value  = '';
+    document.getElementById('s-phone').value = '';
+    document.getElementById('s-email').value = '';
+    document.getElementById('s-city').value  = '';
+    document.getElementById('err-city').textContent = '';
+    document.getElementById('success-dialog').classList.add('show');
+    await loadRequests();
+    renderStudentSchedule();
+  };
+
+  /* ===== השיעורים שלי ===== */
+  let myLessonsData = [];
+  let myLessonsSortDir = 'asc';
+
+  window.loadMyLessons = async function() {
+    const inputVal = document.getElementById('my-phone').value.trim();
+    const phone = parsePhone(inputVal || sessionPhone);
+    if (!phone || phone.length < 10) { showAlert('מספר טלפון לא תקין', 'error'); return; }
+
+    const snap = await get(ref(db, 'requests'));
+    const list = document.getElementById('my-lessons-list');
+    myLessonsData = [];
+
+    if (snap.exists()) {
+      Object.entries(snap.val()).forEach(([id, r]) => {
+        if (r.phone === phone && (r.status === 'approved' || r.status === 'pending' || r.status === 'rejected')) {
+          (r.slots || []).forEach(s => {
+            myLessonsData.push({ id, slot: s, status: r.status, name: r.name, timestamp: r.timestamp, amount: r.amount||0 });
+          });
+        }
+      });
+    }
+
+    renderMyLessons();
+  };
+
+  function renderMyLessons() {
+    const list = document.getElementById('my-lessons-list');
+
+    let data = [...myLessonsData];
+    data.sort((a,b) => {
+      const da = slotToDate(a.slot), db2 = slotToDate(b.slot);
+      return myLessonsSortDir === 'asc' ? da - db2 : db2 - da;
+    });
+
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">לא נמצאו שיעורים</p>'; return; }
+
+    data.forEach(l => {
+      const parts = l.slot.split('_');
+      const day = parts[0], date = parts[1], time = parts[2];
+      const isRejected   = l.status === 'rejected';
+      const isPending    = l.status === 'pending';
+      const isApproved   = l.status === 'approved';
+
+      /* ביטול: ממתין — תמיד; מאושר — עד 24 שעות לפני */
+      const canCancelThis = isPending || (isApproved && canCancel(l.slot));
+
+      const div = document.createElement('div');
+      div.className = 'lesson-item';
+
+      const statusColor = isPending ? '#b07e1a' : isRejected ? 'var(--red)' : 'var(--green)';
+      const statusText  = isPending ? '⏳ ממתין לאישור' : isRejected ? '🚫 נדחה' : '✅ מאושר';
+      const amountLine  = (!isPending && !isRejected && l.amount) ? `<div class="lesson-status" style="color:var(--green);margin-top:2px;">💰 לתשלום: ${l.amount} ₪</div>` : '';
+
+      const actions = [];
+      if (canCancelThis) {
+        actions.push(`<button class="btn btn-red lesson-cancel" onclick="requestCancelLesson('${l.id}','${l.slot}',${isApproved})">ביטול</button>`);
+      }
+
+      div.innerHTML = `
+        <div class="lesson-icon">📅</div>
+        <div class="lesson-info">
+          <div class="lesson-time">${day} ${date} | ${time}</div>
+          <div class="lesson-status" style="color:${statusColor}">${statusText}</div>
+          ${amountLine}
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">${actions.join('')}</div>`;
+      list.appendChild(div);
+    });
+  }
+
+  function canCancel(slot) {
+    try {
+      const lessonDate = slotToDate(slot);
+      return (lessonDate - new Date()) > 24 * 60 * 60 * 1000;
+    } catch { return false; }
+  }
+
+  function slotToDate(slot) {
+    try {
+      const parts = slot.split('_');
+      const [d, m] = parts[1].split('/');
+      const [h, min] = parts[2].split(':');
+      const now = new Date();
+      const year = now.getFullYear();
+      const date = new Date(year, parseInt(m)-1, parseInt(d), parseInt(h), parseInt(min));
+      /* אם התאריך עבר בשנה הנוכחית — כנראה שנה הבאה */
+      if (date < now && (now - date) > 30 * 24 * 60 * 60 * 1000) {
+        date.setFullYear(year + 1);
+      }
+      return date;
+    } catch { return new Date(0); }
+  }
+
+  window.clearSearch = function(id, callback) {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; if (callback) callback(); }
+  };
+
+  window.filterMyLessons = renderMyLessons;
+  window.sortMyLessons = function(dir) { myLessonsSortDir = dir; renderMyLessons(); };
+
+  /* ===== שינוי שיעור ממתין ===== */
+  window.editLesson = async function(id, slot) {
+    /* בטל את השיעור הממתין ועבור לקביעת שיעור חדש */
+    const snap = await get(ref(db, 'requests/' + id));
+    if (snap.exists()) {
+      const r = snap.val();
+      const remaining = (r.slots||[]).filter(s => s !== slot);
+      if (remaining.length === 0) {
+        await remove(ref(db, 'requests/' + id));
+      } else {
+        await update(ref(db, 'requests/' + id), { slots: remaining });
+      }
+    }
+    showAlert('השיעור בוטל. בחר זמן חדש.', 'info');
+    await loadRequests();
+    renderStudentSchedule();
+    showView('book');
+  };
+
+  let cancelTargetId   = null;
+  let cancelTargetSlot = null;
+
+  window.requestCancelLesson = function(id, slot, isApproved) {
+    cancelTargetId   = id;
+    cancelTargetSlot = slot;
+    const lessonDate = slotToDate(slot);
+    const now = new Date();
+    const isFuture = lessonDate > now;
+    let msg;
+    if (isApproved) {
+      msg = isFuture
+        ? 'שיעור זה טרם התקיים. האם לבטל? יש להודיע למורה טלפונית בנוסף.'
+        : 'האם לבטל את השיעור? יש להודיע למורה טלפונית בנוסף.';
+    } else {
+      msg = isFuture
+        ? 'בקשה זו טרם אושרה ועדיין עתידית. האם לבטל?'
+        : 'האם לבטל את הבקשה?';
+    }
+    document.getElementById('cancel-dialog-text').textContent = msg;
+    document.getElementById('cancel-dialog').classList.add('show');
+  };
+
+  window.confirmCancelLesson = async function() {
+    if (!cancelTargetId || !cancelTargetSlot) return;
+    const snap = await get(ref(db, 'requests/' + cancelTargetId));
+    if (snap.exists()) {
+      const r = snap.val();
+      /* רישום לוג */
+      await logAction({ reqId: cancelTargetId, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'', slot: cancelTargetSlot, action: 'בוטלה', status: 'בוטל ע"י תלמיד', by: 'תלמיד', amount: (r.status === 'approved' && r.amount) ? -(r.amount) : 0 });
+      /* הסר רק את ה-slot הזה מהבקשה */
+      const remaining = (r.slots||[]).filter(s => s !== cancelTargetSlot);
+      if (remaining.length === 0) {
+        await remove(ref(db, 'requests/' + cancelTargetId));
+      } else {
+        await update(ref(db, 'requests/' + cancelTargetId), { slots: remaining });
+      }
+    }
+    cancelTargetId   = null;
+    cancelTargetSlot = null;
+    closeDialog('cancel-dialog');
+    showAlert('השיעור בוטל.', 'info');
+    await loadRequests();
+    renderStudentSchedule();
+    loadMyLessons();
+  };
+
+  /* ===== היסטוריה ===== */
+  let historyData = [];
+  let historySortDir = 'desc';
+
+  window.loadHistory = async function() {
+    const inputVal = document.getElementById('hist-phone').value.trim();
+    const phone = parsePhone(inputVal || sessionPhone);
+    if (!phone || phone.length < 10) { showAlert('מספר טלפון לא תקין', 'error'); return; }
+
+    const [reqSnap, histSnap] = await Promise.all([
+      get(ref(db, 'requests')),
+      get(ref(db, 'history'))
+    ]);
+
+    historyData = [];
+
+    if (reqSnap.exists()) {
+      Object.entries(reqSnap.val()).forEach(([id, r]) => {
+        if (r.phone === phone) {
+          (r.slots || []).forEach(s => historyData.push({ id, slot: s, status: r.status, timestamp: r.timestamp }));
+        }
+      });
+    }
+
+    if (histSnap.exists()) {
+      Object.entries(histSnap.val()).forEach(([id, r]) => {
+        if (r.phone === phone) {
+          (r.slots || []).forEach(s => historyData.push({ id, slot: s, status: r.status, timestamp: r.timestamp }));
+        }
+      });
+    }
+
+    document.getElementById('hist-search').style.display = historyData.length ? 'block' : 'none';
+    document.getElementById('hist-sort-row').style.display = historyData.length ? 'flex' : 'none';
+    renderHistory();
+  };
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    const search = document.getElementById('hist-search').value.toLowerCase();
+
+    let data = historyData.filter(l => !search || l.slot.toLowerCase().includes(search) || l.status.includes(search));
+    data.sort((a,b) => {
+      const da = slotToDate(a.slot), db2 = slotToDate(b.slot);
+      return historySortDir === 'asc' ? da - db2 : db2 - da;
+    });
+
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">לא נמצאו פניות</p>'; return; }
+
+    const statusMap = { approved:'✅ מאושר', pending:'⏳ ממתין', cancelled:'❌ בוטל', rejected:'🚫 נדחה' };
+    const colorMap  = { approved:'var(--green)', pending:'#b07e1a', cancelled:'var(--red)', rejected:'var(--muted)' };
+
+    data.forEach(l => {
+      const parts = l.slot.split('_');
+      const day = parts[0], date = parts[1], time = parts[2];
+      const div = document.createElement('div');
+      div.className = 'lesson-item';
+      div.innerHTML = `
+        <div class="lesson-icon">🕐</div>
+        <div class="lesson-info">
+          <div class="lesson-time">${day} ${date} | ${time}</div>
+          <div class="lesson-status" style="color:${colorMap[l.status]||'var(--muted)'}">${statusMap[l.status]||l.status}</div>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  window.filterHistory = renderHistory;
+  window.sortHistory = function(dir) { historySortDir = dir; renderHistory(); };
+
+  /* ===== אתחול ===== */
+  if (localStorage.getItem('fromAdmin') === '1') {
+    document.getElementById('nav-back-admin').style.display = 'flex';
+  } else {
+    document.getElementById('nav-back-mobile').classList.add('hidden');
+  }
+
+  loadSchedule();
+</script>
+
+</body>
+</html>

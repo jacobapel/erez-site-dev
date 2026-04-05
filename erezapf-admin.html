@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ניהול שיעורים | ארז</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Sans+Hebrew:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9952a;
+      --gold-hover: #b07e1a;
+      --gold-bg: rgba(201,149,42,0.08);
+      --cream: #faf8f3;
+      --navy: #1a2744;
+      --text: #2c2c2a;
+      --muted: #6b6860;
+      --border: rgba(0,0,0,0.09);
+      --white: #ffffff;
+      --green: #2d7a4f;
+      --green-bg: #eaf5ee;
+      --red: #a32d2d;
+      --red-bg: #fcebeb;
+      --nav-w: 200px;
+    }
+
+    body {
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      direction: rtl;
+      color: var(--text);
+      background: var(--cream);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== מסך כניסה ===== */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+    }
+
+    .login-box {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 320px;
+      text-align: center;
+    }
+
+    .login-box h1 {
+      font-family: 'Noto Serif Hebrew', serif;
+      font-size: 1.3rem;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .login-box p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 0.5px solid rgba(0,0,0,0.18);
+      border-radius: 8px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.9rem;
+      text-align: center;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      background: var(--cream);
+    }
+
+    .login-box input:focus { outline: none; border-color: var(--gold); }
+
+    .login-error { font-size: 0.78rem; color: var(--red); margin-bottom: 0.8rem; min-height: 1.2em; }
+
+    /* ===== ניווט ===== */
+    #admin-app { display: none; }
+
+    .nav {
+      position: fixed;
+      top: 0; right: 0;
+      width: var(--nav-w);
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif Hebrew', serif;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0 1.2rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 0.8rem;
+    }
+
+    .nav-logo span { display: block; font-size: 0.7rem; font-weight: 300; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1.2rem;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-right: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .nav-item.active { color: #fff; border-right-color: var(--gold); background: rgba(255,255,255,0.08); }
+    .nav-item .ni { font-size: 1rem; }
+
+    .nav-bottom {
+      margin-top: auto;
+      padding: 1rem 1.2rem 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .nav-exit {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: color 0.15s;
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-exit:hover { color: #fff; }
+
+    /* ===== תוכן ===== */
+    .main { margin-right: var(--nav-w); padding: 1.5rem; max-width: 800px; }
+
+    .page-header {
+      padding: 1rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-header h1 { font-family: 'Noto Serif Hebrew', serif; font-size: 1.3rem; font-weight: 600; color: var(--navy); }
+
+    /* ===== כרטיס ===== */
+    .card {
+      background: var(--white);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'Noto Serif Hebrew', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+    }
+
+    /* ===== כפתורים ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-gold   { background: var(--gold);  color: #fff; }
+    .btn-gold:hover { background: var(--gold-hover); }
+    .btn-navy   { background: var(--navy);  color: #fff; }
+    .btn-outline { background: transparent; color: var(--navy); border: 0.5px solid var(--border); }
+    .btn-outline:hover { background: var(--cream); }
+    .btn-green  { background: var(--green-bg); color: var(--green); border: 0.5px solid rgba(45,122,79,0.25); font-size: 0.78rem; padding: 4px 10px; }
+    .btn-red    { background: var(--red-bg);   color: var(--red);   border: 0.5px solid rgba(163,45,45,0.25); font-size: 0.78rem; padding: 4px 10px; }
+    .btn-sm     { font-size: 0.78rem; padding: 4px 10px; }
+
+    /* ===== בקשות ===== */
+    .request-item {
+      background: var(--cream);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .req-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .req-name   { font-weight: 500; font-size: 0.9rem; color: var(--navy); }
+    .req-detail { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .req-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.5rem; }
+
+    .badge {
+      display: inline-block;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      padding: 2px 9px;
+      margin-right: 5px;
+    }
+
+    .badge-pending  { background: #fff8e6; color: #7a5a10; border: 0.5px solid #e6c96a; }
+    .badge-approved { background: var(--green-bg); color: var(--green); border: 0.5px solid rgba(45,122,79,0.3); }
+    .badge-cancelled{ background: var(--red-bg); color: var(--red); border: 0.5px solid rgba(163,45,45,0.2); }
+    .badge-rejected { background: #f0f0f0; color: var(--muted); border: 0.5px solid var(--border); }
+
+    /* ===== לוח שבועי ===== */
+    .week-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.5rem; }
+    .week-table th { background: var(--navy); color: #fff; padding: 0.5rem; text-align: center; font-weight: 500; }
+    .week-table td { padding: 0.4rem 0.5rem; border: 0.5px solid var(--border); text-align: center; vertical-align: top; }
+    .week-table td.has-lesson { background: var(--green-bg); }
+    .lesson-cell { font-size: 0.75rem; color: var(--green); line-height: 1.4; }
+
+    /* ===== עריכת לוח ===== */
+    .day-edit-row {
+      background: var(--cream);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .day-edit-name { font-size: 0.88rem; font-weight: 500; color: var(--navy); margin-bottom: 0.4rem; }
+
+    .times-input {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 0.5px solid rgba(0,0,0,0.15);
+      border-radius: 6px;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+      font-size: 0.82rem;
+      background: var(--white);
+      direction: ltr;
+    }
+
+    .times-input:focus { outline: none; border-color: var(--gold); }
+    .hint { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+    /* ===== חיפוש ===== */
+    .search-bar {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: var(--cream);
+      color: var(--text);
+      margin-bottom: 0.8rem;
+      font-family: 'Noto Sans Hebrew', sans-serif;
+    }
+
+    .search-bar:focus { outline: none; border-color: var(--gold); }
+
+    /* ===== הודעה ===== */
+    .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.83rem; margin-bottom: 1rem; display: none; }
+    .alert.show { display: block; }
+    .alert-success { background: var(--green-bg); color: var(--green); }
+    .alert-error   { background: var(--red-bg);   color: var(--red); }
+    .alert-info    { background: var(--gold-bg);   color: #7a5a10; }
+
+    /* ===== שבועות ===== */
+    .week-nav { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+    .week-nav span { font-size: 0.85rem; color: var(--navy); font-weight: 500; flex: 1; text-align: center; }
+
+    /* ===== דיאלוג ===== */
+    .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .dialog-overlay.show { display: flex; }
+    .dialog { background: var(--white); border-radius: 12px; padding: 1.5rem; max-width: 340px; width: 90%; }
+    .dialog h3 { font-family: 'Noto Serif Hebrew', serif; font-size: 1rem; color: var(--navy); margin-bottom: 0.5rem; }
+    .dialog p  { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .dialog-btns { display: flex; gap: 0.6rem; }
+    .dialog-btns .btn { flex: 1; }
+
+    .spinner { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 0.82rem; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    @media (max-width: 600px) {
+      .nav { width: 100%; height: auto; flex-direction: row; position: fixed; bottom: 0; top: auto; padding: 0; overflow-x: auto; }
+      .nav-logo, .nav-bottom { display: none; }
+      .nav-item { flex-direction: column; flex: 0 0 auto; min-width: 65px; font-size: 0.62rem; padding: 0.5rem 0.2rem; gap: 0.2rem; border-right: none; border-top: 3px solid transparent; }
+      .nav-item.active { border-top-color: var(--gold); border-right-color: transparent; }
+      .main { margin-right: 0; padding: 1rem; padding-bottom: 5rem; }
+    }
+    @media (min-width: 601px) {
+      .nav-item-mobile-only { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== מסך כניסה ===== -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🔐 כניסת מנהל</h1>
+    <p>ניהול שיעורים — ארז</p>
+    <input type="password" id="admin-pass" placeholder="סיסמה" onkeydown="if(event.key==='Enter') doLogin()" />
+    <div class="login-error" id="login-error"></div>
+    <button class="btn btn-navy" style="width:100%;" onclick="doLogin()">כניסה</button>
+  </div>
+</div>
+
+<!-- ===== אפליקציית מנהל ===== -->
+<div id="admin-app">
+
+  <nav class="nav">
+    <div class="nav-logo">ארז <span>פאנל ניהול</span></div>
+    <div class="nav-item active" onclick="showView('requests')"  id="nav-requests"> <span class="ni">📋</span> בקשות <span id="nav-expired-star" style="color:#ff6b6b; display:none;">✶</span></div>
+    <div class="nav-item" onclick="showView('weekly')"    id="nav-weekly">   <span class="ni">📅</span> לוח שבועי</div>
+    <div class="nav-item" onclick="showView('schedule')"  id="nav-schedule"> <span class="ni">⚙️</span> עריכת לוח</div>
+    <div class="nav-item" onclick="showView('students')"  id="nav-students"> <span class="ni">👨‍🎓</span> תלמידים</div>
+    <div class="nav-item" onclick="showView('history')"   id="nav-history">  <span class="ni">🕐</span> לוג</div>
+    <div class="nav-item nav-item-mobile-only" onclick="localStorage.setItem('fromAdmin','1'); window.location.href='scheduler.html'"><span class="ni">📱</span> דף תלמיד</div>
+    <div class="nav-item nav-item-mobile-only" onclick="doLogout()"><span class="ni">🚪</span> יציאה</div>
+    <div class="nav-bottom">
+      <div class="nav-exit" onclick="localStorage.setItem('fromAdmin','1'); window.location.href='scheduler.html'"><span>👨‍🎓</span> דף תלמיד</div>
+      <div class="nav-exit" onclick="doLogout()"><span>🚪</span> יציאה</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <div id="global-alert" class="alert"></div>
+
+    <!-- ===== בקשות ===== -->
+    <div id="view-requests" class="view active">
+      <div class="page-header">
+        <h1>בקשות לאישור</h1>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center;">
+        <input type="text" class="search-bar" id="req-search" placeholder="חיפוש לפי שם, טלפון, אימייל, יישוב, תאריך, סכום..." oninput="filterRequests()" style="margin-bottom:0; flex:1;" />
+        <button class="btn btn-outline" onclick="window.clearSearch('req-search', filterRequests)">נקה</button>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center;">
+        <span style="font-size:0.78rem; color:var(--muted);">מיון לפי תאריך שיעור:</span>
+        <button class="btn btn-outline btn-sm" id="sort-asc-btn"  onclick="window.setReqSort('asc')"  style="background:var(--navy);color:#fff;">↑ עולה</button>
+        <button class="btn btn-outline btn-sm" id="sort-desc-btn" onclick="window.setReqSort('desc')">↓ יורד</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">ממתינות לאישור</div>
+        <div id="pending-list"><div class="spinner">טוען...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">מאושרות</div>
+        <div id="approved-list"><div class="spinner">טוען...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">בקשות שפג תקפן <span id="expired-star" style="color:var(--red); display:none;">✶</span></div>
+        <p style="font-size:0.78rem; color:var(--muted); margin-bottom:0.8rem;">בקשות ממתינות ומאושרות שתאריך השיעור עבר</p>
+        <div id="expired-list"><div class="spinner">טוען...</div></div>
+      </div>
+    </div>
+
+    <!-- ===== לוח שבועי ===== -->
+    <div id="view-weekly" class="view">
+      <div class="page-header"><h1>לוח שבועי</h1></div>
+      <div class="card">
+        <div class="week-nav">
+          <button class="btn btn-outline btn-sm" onclick="changeWeekView(-1)">שבוע קודם</button>
+          <span id="week-label"></span>
+          <button class="btn btn-outline btn-sm" onclick="changeWeekView(1)">שבוע הבא</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="week-table" id="weekly-table"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== עריכת לוח ===== -->
+    <div id="view-schedule" class="view">
+      <div class="page-header"><h1>עריכת לוח זמנים</h1></div>
+      <div class="card">
+        <div class="card-title">ימים ושעות זמינים</div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;">הזן שעות מופרדות בפסיק לכל יום</p>
+        <div id="schedule-form"></div>
+        <button class="btn btn-gold" style="margin-top:1rem;" onclick="saveSchedule()">💾 שמור שינויים</button>
+      </div>
+      <div class="card">
+        <div class="card-title">שבועות זמינים לבחירה</div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.8rem;">כמה שבועות קדימה יוצגו לתלמיד</p>
+        <div style="display:flex; align-items:center; gap:0.8rem;">
+          <input type="number" id="extra-weeks" min="1" max="12" value="4" style="width:80px; padding:0.5rem; border:0.5px solid var(--border); border-radius:6px; font-size:0.9rem; text-align:center;" />
+          <span style="font-size:0.82rem; color:var(--muted);">שבועות</span>
+          <button class="btn btn-navy btn-sm" onclick="saveExtraWeeks()">שמור</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== תלמידים ===== -->
+    <div id="view-students" class="view">
+      <div class="page-header"><h1>ניהול תלמידים</h1></div>
+
+      <!-- הוספת תלמיד -->
+      <div class="card">
+        <div class="card-title">הוסף / עדכן תלמיד</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:0.7rem;">
+          <div>
+            <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.25rem;">שם מלא *</label>
+            <input type="text" id="st-name" placeholder="ישראל ישראלי" style="width:100%; padding:0.6rem 0.8rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-family:inherit; font-size:0.88rem; background:var(--cream);" />
+          </div>
+          <div>
+            <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.25rem;">טלפון * (05X-XXXXXXX)</label>
+            <input type="tel" id="st-phone" placeholder="05X-XXXXXXX" maxlength="11" style="width:100%; padding:0.6rem 0.8rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-family:inherit; font-size:0.88rem; background:var(--cream);" />
+          </div>
+        </div>
+        <div style="margin-bottom:0.7rem;">
+          <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.25rem;">אימייל</label>
+          <input type="email" id="st-email" placeholder="example@gmail.com" style="width:100%; padding:0.6rem 0.8rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-family:inherit; font-size:0.88rem; background:var(--cream);" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:0.7rem;">
+          <div>
+            <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.25rem;">יישוב</label>
+            <input type="text" id="st-city" placeholder="תל אביב, חיפה..." style="width:100%; padding:0.6rem 0.8rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-family:inherit; font-size:0.88rem; background:var(--cream);" />
+          </div>
+          <div>
+            <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.25rem;">הערות</label>
+            <input type="text" id="st-notes" placeholder="הערות אישיות..." style="width:100%; padding:0.6rem 0.8rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-family:inherit; font-size:0.88rem; background:var(--cream);" />
+          </div>
+        </div>
+        <div id="st-error" style="font-size:0.78rem; color:var(--red); margin-bottom:0.6rem; min-height:1.2em;"></div>
+        <div style="display:flex; gap:0.6rem;">
+          <button class="btn btn-gold" onclick="saveStudent()">💾 שמור תלמיד</button>
+          <button class="btn btn-outline" onclick="clearStudentForm()">נקה</button>
+        </div>
+      </div>
+
+      <!-- רשימת תלמידים -->
+      <div class="card">
+        <div class="card-title">רשימת תלמידים</div>
+        <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center;">
+          <input type="text" class="search-bar" id="st-search" placeholder="חיפוש לפי שם, טלפון, אימייל, יישוב, הערות..." oninput="filterStudents()" style="margin-bottom:0; flex:1;" />
+          <button class="btn btn-outline" onclick="window.clearSearch('st-search', filterStudents)">נקה</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.78rem; color:var(--muted);">מיון לפי שם:</span>
+          <button class="btn btn-outline btn-sm" id="st-asc-btn"  onclick="window.setStudentSort('asc')"  style="background:var(--navy);color:#fff;">↑ עולה</button>
+          <button class="btn btn-outline btn-sm" id="st-desc-btn" onclick="window.setStudentSort('desc')">↓ יורד</button>
+        </div>
+        <div id="students-list"><div class="spinner">טוען...</div></div>
+      </div>
+    </div>
+
+    <!-- ===== לוג פעולות ===== -->
+    <div id="view-history" class="view">
+      <div class="page-header"><h1>לוג פעולות</h1></div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1rem;">✶ כולל בקשות מאושרות וממתינות שפג תקפם</p>
+
+      <!-- גיבוי מלא -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-title">גיבוי ושחזור מלא</div>
+        <p style="font-size:0.78rem; color:var(--muted); margin-bottom:0.8rem;">גיבוי כולל: בקשות, תלמידים, לוח זמנים, לוג פעולות</p>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn btn-navy" onclick="window.exportFullBackup()">💾 הורד גיבוי מלא</button>
+          <label class="btn btn-outline" style="cursor:pointer;">
+            📤 שחזר מגיבוי <input type="file" accept=".json" onchange="window.importFullBackup(event)" style="display:none;" />
+          </label>
+          <button class="btn btn-outline" onclick="window.openCompareDialog()">🔍 השווה שני גיבויים</button>
+        </div>
+      </div>
+
+      <!-- כפתורי ייצוא/ייבוא לוג -->
+      <div style="display:flex; gap:6px; margin-bottom:1rem; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="exportLog('csv')">📥 ייצוא לוג CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportLog('json')">📥 ייצוא לוג JSON</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+          📤 ייבוא לוג JSON <input type="file" accept=".json" onchange="importLog(event)" style="display:none;" />
+        </label>
+      </div>
+
+      <!-- לשוניות -->
+      <div style="display:flex; gap:6px; margin-bottom:1rem;">
+        <button class="btn btn-navy btn-sm" id="log-tab-all" onclick="switchLogTab('all')">📋 כרונולוגי</button>
+        <button class="btn btn-outline btn-sm" id="log-tab-student" onclick="switchLogTab('student')">👤 לפי תלמיד</button>
+      </div>
+
+      <!-- כרונולוגי -->
+      <div id="log-view-all">
+        <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center;">
+          <input type="text" class="search-bar" id="log-all-search" placeholder="חיפוש לפי שם, טלפון, אימייל, יישוב, שיעור, פעולה, סטטוס..." oninput="renderLogAll()" style="margin-bottom:0; flex:1;" />
+          <button class="btn btn-outline" onclick="window.clearSearch('log-all-search', renderLogAll)">נקה</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-bottom:0.8rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.78rem; color:var(--muted);">מיון לפי תאריך:</span>
+          <button class="btn btn-outline btn-sm" id="log-asc-btn"       onclick="window.setLogSort('asc')">↑ עולה</button>
+          <button class="btn btn-outline btn-sm" id="log-desc-btn"      onclick="window.setLogSort('desc')" style="background:var(--navy);color:#fff;">↓ יורד</button>
+          <span style="font-size:0.78rem; color:var(--muted); margin-right:6px;">לפי שם:</span>
+          <button class="btn btn-outline btn-sm" id="log-name-asc-btn"  onclick="window.setLogSort('name-asc')">↑ א-ת</button>
+          <button class="btn btn-outline btn-sm" id="log-name-desc-btn" onclick="window.setLogSort('name-desc')">↓ ת-א</button>
+        </div>
+        <div id="log-all-list"><div class="spinner">טוען...</div></div>
+      </div>
+
+      <!-- לפי תלמיד -->
+      <div id="log-view-student" style="display:none;">
+        <div style="display:flex; gap:0.6rem; margin-bottom:1rem;">
+          <input type="tel" id="log-student-phone" placeholder="05X-XXXXXXX" style="flex:1; padding:0.6rem 0.8rem; border:0.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:0.85rem; background:var(--cream);" maxlength="11" />
+          <button class="btn btn-navy" onclick="loadLogByStudent()">הצג</button>
+        </div>
+        <input type="text" class="search-bar" id="log-student-search" placeholder="חיפוש..." oninput="renderLogStudent()" style="display:none;" />
+        <div id="log-student-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- דיאלוג ביטול -->
+<div class="dialog-overlay" id="cancel-dialog">
+  <div class="dialog">
+    <h3>ביטול שיעור</h3>
+    <p id="cancel-text">האם לבטל שיעור זה? תישלח הודעה לתלמיד.</p>
+    <div class="dialog-btns">
+      <button class="btn btn-outline" onclick="closeDialog('cancel-dialog')">ביטול</button>
+      <button class="btn btn-red" onclick="confirmCancel()">אשר ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- דיאלוג אישור עם סכום -->
+<div class="dialog-overlay" id="approve-dialog">
+  <div class="dialog">
+    <h3>✅ אישור שיעור</h3>
+    <p>הזן את הסכום לתשלום (אפשר להשאיר ריק):</p>
+    <input type="number" id="approve-amount" placeholder="סכום ₪" min="0" style="width:100%; padding:0.65rem; border:0.5px solid rgba(0,0,0,0.18); border-radius:8px; font-size:0.9rem; text-align:center; margin-bottom:1rem; background:var(--cream);" />
+    <div class="dialog-btns">
+      <button class="btn btn-outline" onclick="closeDialog('approve-dialog')">ביטול</button>
+      <button class="btn btn-green" onclick="confirmApprove()">אשר שיעור</button>
+    </div>
+  </div>
+</div>
+
+<!-- דיאלוג שינוי שיעור -->
+<div class="dialog-overlay" id="reschedule-dialog">
+  <div class="dialog" style="max-width:400px;">
+    <h3>✏️ שינוי מועד שיעור</h3>
+    <p id="reschedule-info" style="font-size:0.82rem; color:var(--muted); margin-bottom:1rem;"></p>
+    <div style="margin-bottom:0.8rem;">
+      <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.3rem;">בחר שבוע</label>
+      <div id="reschedule-weeks" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:0.8rem;"></div>
+      <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.3rem;">בחר זמן</label>
+      <div id="reschedule-slots" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+    </div>
+    <div id="reschedule-selected" style="font-size:0.82rem; color:var(--green); min-height:1.4em; margin-bottom:0.8rem;"></div>
+    <div class="dialog-btns">
+      <button class="btn btn-outline" onclick="closeDialog('reschedule-dialog')">ביטול</button>
+      <button class="btn btn-navy" onclick="confirmReschedule()">אשר שינוי</button>
+    </div>
+  </div>
+</div>
+
+<!-- דיאלוג השוואת גיבויים -->
+<div class="dialog-overlay" id="compare-dialog" style="align-items:flex-start; padding:1rem; overflow-y:auto;">
+  <div class="dialog" style="max-width:680px; width:95%; margin:auto; text-align:right;">
+    <h3>🔍 השוואת שני גיבויים</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin:1rem 0;">
+      <div>
+        <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.3rem;">גיבוי ישן (קובץ 1)</label>
+        <label class="btn btn-outline" style="cursor:pointer; width:100%; justify-content:center;">
+          📂 בחר קובץ <input type="file" id="compare-file1" accept=".json" style="display:none;" onchange="window.compareFileSelected(1,this)" />
+        </label>
+        <div id="compare-name1" style="font-size:0.72rem; color:var(--muted); margin-top:4px; text-align:center;"></div>
+      </div>
+      <div>
+        <label style="font-size:0.78rem; color:var(--muted); display:block; margin-bottom:0.3rem;">גיבוי חדש (קובץ 2)</label>
+        <label class="btn btn-outline" style="cursor:pointer; width:100%; justify-content:center;">
+          📂 בחר קובץ <input type="file" id="compare-file2" accept=".json" style="display:none;" onchange="window.compareFileSelected(2,this)" />
+        </label>
+        <div id="compare-name2" style="font-size:0.72rem; color:var(--muted); margin-top:4px; text-align:center;"></div>
+      </div>
+    </div>
+    <button class="btn btn-navy" style="width:100%; margin-bottom:1rem;" onclick="window.runCompare()">השווה</button>
+    <div id="compare-result" style="max-height:400px; overflow-y:auto; font-size:0.82rem;"></div>
+    <div style="margin-top:1rem; text-align:center;">
+      <button class="btn btn-outline" onclick="closeDialog('compare-dialog')">סגור</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase + EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- פונקציות גלובליות לפני טעינת module -->
+<script>
+  function doLogin()       { if (window._doLogin)  window._doLogin(); }
+  function doLogout()      { if (window._doLogout) window._doLogout(); }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, update, remove, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCQTxJbPmhKOb76zguPaXB_K8E3GwWx6yQ",
+    authDomain:        "erez-teacher.firebaseapp.com",
+    databaseURL:       "https://erez-teacher-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "erez-teacher",
+    storageBucket:     "erez-teacher.firebasestorage.app",
+    messagingSenderId: "364569139715",
+    appId:             "1:364569139715:web:ef21e7fe86c198fc908c36"
+  };
+
+  /*
+  ================================================================
+    EmailJS — כדי לשלוח מיילים:
+    1. הירשם בחינם ל- emailjs.com
+    2. צור Service עם חשבון pspcom@gmail.com
+    3. צור Template עם המשתנים: to_name, to_email, message, lesson_time
+    4. עדכן את 3 הקבוצות למטה
+  ================================================================
+  */
+  const EMAILJS_SERVICE  = 'YOUR_SERVICE_ID';
+  const EMAILJS_TEMPLATE = 'YOUR_TEMPLATE_ID';
+  const EMAILJS_KEY      = 'YOUR_PUBLIC_KEY';
+  const ADMIN_PASS       = 'erez1234';           // ← שנה לסיסמה שלך
+  window._ADMIN_PASS     = ADMIN_PASS;
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  emailjs.init(EMAILJS_KEY);
+
+  const DAYS_HE = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+
+  function getWeekStart(offset = 0) {
+    const now = new Date();
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() - now.getDay() + offset * 7);
+    sunday.setHours(0,0,0,0);
+    return sunday;
+  }
+
+  function formatDate(d) {
+    const day   = String(d.getDate()).padStart(2,'0');
+    const month = String(d.getMonth()+1).padStart(2,'0');
+    return day + '/' + month;
+  }
+
+  /* ===== כניסה ===== */
+  window._doLogin = function() {
+    const pass = document.getElementById('admin-pass').value;
+    if (pass === ADMIN_PASS) {
+      localStorage.setItem('adminAuth', '1');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-app').style.display = 'block';
+      initAdmin();
+    } else {
+      document.getElementById('login-error').textContent = 'סיסמה שגויה';
+    }
+  };
+  window.doLogin = window._doLogin;
+
+  window._doLogout = function() {
+    localStorage.removeItem('adminAuth');
+    localStorage.removeItem('fromAdmin');
+    document.getElementById('admin-app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-pass').value = '';
+  };
+  window.doLogout = window._doLogout;
+
+  /* ===== כניסה אוטומטית אם כבר מאומת ===== */
+  if (localStorage.getItem('adminAuth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    initAdmin();
+  }
+
+  /* ===== ניווט ===== */
+  window.showView = function(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'weekly')    renderWeeklyTable();
+    if (name === 'history')   { switchLogTab('all'); loadLogAll(); }
+    if (name === 'students')  loadStudents();
+    if (name === 'completed') loadCompleted();
+  };
+
+  window.closeDialog = function(id) { document.getElementById(id).classList.remove('show'); };
+
+  /* ===== הודעה ===== */
+  function showAlert(text, type) {
+    const el = document.getElementById('global-alert');
+    el.className = 'alert alert-' + type + ' show';
+    el.textContent = text;
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  /* ===== אתחול ===== */
+  let schedule = [];
+  let allRequests = {};
+  let reqSortDir = 'asc';
+
+  const DEFAULT_SCHEDULE = [
+    { day: 'ראשון',  times: ['15:00','16:00','17:00','18:00'] },
+    { day: 'שני',    times: ['16:00','17:00','18:00'] },
+    { day: 'שלישי', times: ['15:00','16:00','17:00'] },
+    { day: 'רביעי', times: ['16:00','17:00','18:00','19:00'] },
+    { day: 'חמישי', times: ['15:00','16:00','17:00'] },
+    { day: 'שישי',  times: ['12:00','13:00','14:00','15:00','16:00','17:00','18:00'] },
+    { day: 'שבת',   times: ['12:00','13:00','14:00','15:00','16:00','17:00','18:00'] },
+  ];
+
+  async function initAdmin() {
+    const [schSnap, reqSnap, ewSnap] = await Promise.all([
+      get(ref(db, 'schedule')),
+      get(ref(db, 'requests')),
+      get(ref(db, 'settings/extraWeeks'))
+    ]);
+
+    schedule = schSnap.exists() ? schSnap.val() : DEFAULT_SCHEDULE;
+    allRequests = reqSnap.exists() ? reqSnap.val() : {};
+    if (ewSnap.exists()) document.getElementById('extra-weeks').value = ewSnap.val();
+
+    renderScheduleForm();
+    renderRequests();
+
+    onValue(ref(db, 'requests'), snap => {
+      allRequests = snap.exists() ? snap.val() : {};
+      renderRequests();
+    });
+  }
+
+  function slotToDate(slot) {
+    try {
+      const parts = slot.split('_');
+      const [d, m] = parts[1].split('/');
+      const [h, min] = parts[2].split(':');
+      const now  = new Date();
+      const year = now.getFullYear();
+      const date = new Date(year, parseInt(m)-1, parseInt(d), parseInt(h), parseInt(min));
+      if (date < now && (now - date) > 30 * 24 * 60 * 60 * 1000) {
+        date.setFullYear(year + 1);
+      }
+      return date;
+    } catch { return new Date(0); }
+  }
+
+  /* בדיקה אם slot פג תוקפו (לפני אתמול) */
+  function isExpired(slot) {
+    try {
+      const d = slotToDate(slot);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return d < today;
+    } catch { return false; }
+  }
+
+  /* ===== בקשות ===== */
+  function renderRequests() {
+    const search = (document.getElementById('req-search')?.value || '').toLowerCase();
+    const entries = Object.entries(allRequests);
+
+    /* מפריד בין פעילות לפגות תוקף */
+    const pending  = entries.filter(([,r]) => r.status === 'pending'  && (r.slots||[]).some(s => !isExpired(s)));
+    const approved = entries.filter(([,r]) => r.status === 'approved' && (r.slots||[]).some(s => !isExpired(s)));
+    const expired  = entries.filter(([,r]) => (r.status === 'pending' || r.status === 'approved') && (r.slots||[]).every(s => isExpired(s)));
+
+    /* כוכבית בתפריט אם יש פגות תוקף */
+    document.getElementById('expired-star').style.display    = expired.length ? 'inline' : 'none';
+    document.getElementById('nav-expired-star').style.display = expired.length ? 'inline' : 'none';
+
+    renderRequestList('pending-list',  pending,  search, 'אין בקשות ממתינות');
+    renderRequestList('approved-list', approved, search, 'אין שיעורים מאושרים');
+    renderExpiredList(expired, search);
+  }
+
+  function renderRequestList(containerId, entries, search, emptyText) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    // פריסה לפי שיעור בודד
+    let slots = [];
+    entries.forEach(([id, r]) => {
+      (r.slots||[]).forEach(slot => {
+        const parts = slot.split('_');
+        const slotText = (parts[0]||'') + ' ' + (parts[1]||'') + ' ' + (parts[2]||'');
+        if (matchesSearch(r, slot, search)) {
+          slots.push({ id, slot, slotText, r });
+        }
+      });
+    });
+
+    slots = sortSlots(slots);
+
+    if (!slots.length) { container.innerHTML = `<p style="font-size:0.83rem;color:var(--muted)">${emptyText}</p>`; return; }
+
+    slots.forEach(({ id, slot, slotText, r }) => {
+      const isPending = r.status === 'pending';
+      const div = document.createElement('div');
+      div.className = 'request-item';
+      div.innerHTML = `
+        <div class="req-header">
+          <div>
+            <span class="req-name">${r.name}</span>
+            <span class="badge badge-${r.status}">${isPending ? 'ממתין' : 'מאושר'}</span>
+          </div>
+          <span style="font-size:0.72rem; color:var(--muted);">${new Date(r.timestamp).toLocaleDateString('he-IL')} ${new Date(r.timestamp).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'})}</span>
+        </div>
+        <div class="req-detail">📱 ${r.phone}${r.email ? ' | ✉️ ' + r.email : ''}${r.city ? ' | 📍 ' + r.city : ''}</div>
+        <div style="margin-top:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="background:var(--gold-bg);color:#7a5a10;border-radius:12px;padding:2px 8px;font-size:0.75rem;">🕐 ${slotText}</span>
+          ${!isPending && r.amount ? `<span style="background:var(--green-bg);color:var(--green);border-radius:12px;padding:2px 8px;font-size:0.75rem;">💰 ${r.amount} ₪</span>` : ''}
+          ${!isPending ? `<input type="number" placeholder="סכום ₪" value="${r.amount||''}" min="0" style="width:90px;padding:3px 6px;border:0.5px solid var(--border);border-radius:6px;font-size:0.78rem;" onchange="updateAmount('${id}',this.value)" />` : ''}
+        </div>
+        <div class="req-actions">
+          ${isPending ? `<button class="btn btn-green" onclick="approveSlot('${id}','${slot}')">✅ אשר</button>` : ''}
+          <button class="btn btn-red" onclick="startCancel('${id}','${slot}')">❌ ${isPending ? 'דחה' : 'בטל'}</button>
+        </div>`;
+      container.appendChild(div);
+    });
+  }
+
+  /* ===== רישום לוג פעולות ===== */
+  async function logAction({ reqId, name, phone, email, city, slot, action, status, by, amount }) {
+    const logRef = push(ref(db, 'log'));
+    await set(logRef, {
+      reqId:     reqId  || '',
+      name:      name   || '',
+      phone:     phone  || '',
+      email:     email  || '',
+      city:      city   || '',
+      slot:      slot   || '',
+      action,
+      status,
+      by,
+      amount:    amount || 0,
+      timestamp: Date.now()
+    });
+  }
+
+  /* ===== מיון בקשות ===== */
+  let reqSortField = 'date';
+
+  window.updateSortBtns = function() {
+    document.getElementById('sort-asc-btn').style.background  = reqSortDir === 'asc'  ? 'var(--navy)' : '';
+    document.getElementById('sort-asc-btn').style.color       = reqSortDir === 'asc'  ? '#fff'        : '';
+    document.getElementById('sort-desc-btn').style.background = reqSortDir === 'desc' ? 'var(--navy)' : '';
+    document.getElementById('sort-desc-btn').style.color      = reqSortDir === 'desc' ? '#fff'        : '';
+  };
+
+  function sortSlots(slots) {
+    const dir = reqSortDir === 'asc' ? 1 : -1;
+    slots.sort((a, b) => (slotToDate(a.slot).getTime() - slotToDate(b.slot).getTime()) * dir);
+    return slots;
+  }
+
+  function matchesSearch(r, slot, search) {
+    if (!search) return true;
+    const parts = (slot||'').split('_');
+    const slotText = parts.join(' ');
+    return (r.name||'').toLowerCase().includes(search) ||
+           (r.phone||'').includes(search) ||
+           (r.email||'').toLowerCase().includes(search) ||
+           (r.city||'').toLowerCase().includes(search) ||
+           slotText.toLowerCase().includes(search) ||
+           String(r.amount||'').includes(search);
+  }
+
+  window.clearSearch = function(id, callback) {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; if (callback) callback(); }
+  };
+
+  window.setReqSort = function(dir) {
+    reqSortDir = dir;
+    updateSortBtns();
+    renderRequests();
+  };
+
+  window.setLogSort = function(dir) {
+    logAllSortDir = dir;
+    updateLogSortBtns(dir);
+    renderLogAll();
+  };
+
+  window.setStudentSort = function(dir) {
+    studentsSortDir = dir;
+    updateStudentSortBtns();
+    renderStudents();
+  };
+
+  window.filterRequests = renderRequests;
+  window.sortRequests = function(dir) { reqSortDir = dir; renderRequests(); };
+
+  function renderExpiredList(entries, search) {
+    const container = document.getElementById('expired-list');
+    container.innerHTML = '';
+
+    let slots = [];
+    entries.forEach(([id, r]) => {
+      (r.slots||[]).filter(s => isExpired(s)).forEach(slot => {
+        const parts = slot.split('_');
+        const slotText = (parts[0]||'') + ' ' + (parts[1]||'') + ' ' + (parts[2]||'');
+        if (matchesSearch(r, slot, search)) {
+          slots.push({ id, slot, slotText, r });
+        }
+      });
+    });
+
+    slots.sort((a, b) => slotToDate(a.slot).getTime() - slotToDate(b.slot).getTime());
+
+    if (!slots.length) { container.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">אין בקשות שפג תקפן</p>'; return; }
+
+    slots.forEach(({ id, slot, slotText, r }) => {
+      const div = document.createElement('div');
+      div.className = 'request-item';
+      div.style.opacity = '0.75';
+      div.innerHTML = `
+        <div class="req-header">
+          <div>
+            <span class="req-name">${r.name}</span>
+            <span class="badge badge-${r.status}">${r.status === 'pending' ? 'ממתין' : 'מאושר'}</span>
+          </div>
+          <span style="font-size:0.72rem; color:var(--red);">פג תוקף</span>
+        </div>
+        <div class="req-detail">📱 ${r.phone}${r.email ? ' | ✉️ ' + r.email : ''}${r.city ? ' | 📍 ' + r.city : ''}</div>
+        <div style="margin-top:0.4rem;">
+          <span style="background:#f0f0f0;color:var(--muted);border-radius:12px;padding:2px 8px;font-size:0.75rem;">🕐 ${slotText}</span>
+        </div>
+        <div class="req-actions">
+          <button class="btn btn-red" onclick="deleteExpiredSlot('${id}','${slot}')">🗑️ מחק</button>
+        </div>`;
+      container.appendChild(div);
+    });
+  }
+
+  window.deleteExpiredSlot = async function(id, slot) {
+    const snap = await get(ref(db, 'requests/' + id));
+    if (!snap.exists()) return;
+    const r = snap.val();
+    const remaining = (r.slots||[]).filter(s => s !== slot);
+    if (remaining.length === 0) {
+      await remove(ref(db, 'requests/' + id));
+    } else {
+      await update(ref(db, 'requests/' + id), { slots: remaining });
+    }
+    showAlert('הבקשה נמחקה', 'info');
+  };
+
+  window.approveRequest = async function(id) {
+    await update(ref(db, 'requests/' + id), { status: 'approved' });
+    showAlert('השיעור אושר ✅', 'success');
+  };
+
+  /* פתיחת דיאלוג אישור עם שדה סכום */
+  let approveTargetId   = null;
+  let approveTargetSlot = null;
+
+  window.approveSlot = function(id, slot) {
+    approveTargetId   = id;
+    approveTargetSlot = slot;
+    document.getElementById('approve-amount').value = '';
+    document.getElementById('approve-dialog').classList.add('show');
+  };
+
+  window.confirmApprove = async function() {
+    const id   = approveTargetId;
+    const slot = approveTargetSlot;
+    const amount = parseFloat(document.getElementById('approve-amount').value) || 0;
+    if (!id || !slot) return;
+
+    const snap = await get(ref(db, 'requests/' + id));
+    if (!snap.exists()) return;
+    const r = snap.val();
+    const newRef = push(ref(db, 'requests'));
+    const newId = newRef.key;
+    await set(newRef, { ...r, slots: [slot], status: 'approved', amount });
+    const remaining = (r.slots||[]).filter(s => s !== slot);
+    if (remaining.length === 0) {
+      await remove(ref(db, 'requests/' + id));
+    } else {
+      await update(ref(db, 'requests/' + id), { slots: remaining });
+    }
+    await logAction({ reqId: newId, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'', slot, action: 'אושרה', status: 'מאושר', by: 'מנהל', amount });
+    closeDialog('approve-dialog');
+    showAlert('השיעור אושר ✅', 'success');
+    approveTargetId = approveTargetSlot = null;
+  };
+
+  window.updateAmount = async function(id, val) {
+    const amount = parseFloat(val) || 0;
+    await update(ref(db, 'requests/' + id), { amount });
+  };
+
+  let cancelTargetId   = null;
+  let cancelTargetSlot = null;
+
+  window.startCancel = function(id, slot) {
+    cancelTargetId   = id;
+    cancelTargetSlot = slot;
+    document.getElementById('cancel-dialog').classList.add('show');
+  };
+
+  window.confirmCancel = async function() {
+    if (!cancelTargetId) return;
+    const snap = await get(ref(db, 'requests/' + cancelTargetId));
+    if (snap.exists()) {
+      const r = snap.val();
+      const slot = cancelTargetSlot;
+      const isPending = r.status === 'pending';
+      const actionStatus = isPending ? 'נדחה' : 'בוטל ע"י מנהל';
+      const actionLabel  = isPending ? 'נדחתה' : 'בוטלה';
+
+      await logAction({ reqId: cancelTargetId, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'', slot, action: actionLabel, status: actionStatus, by: 'מנהל', amount: (!isPending && r.amount) ? -(r.amount) : 0 });
+
+      if (r.email && EMAILJS_SERVICE !== 'YOUR_SERVICE_ID') {
+        const parts = slot.split('_');
+        emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+          to_name:     r.name,
+          to_email:    r.email,
+          lesson_time: (parts[0]||'') + ' ' + (parts[1]||'') + ' ' + (parts[2]||''),
+          message:     isPending ? 'בקשתך נדחתה. לפרטים נוספים צור קשר עם ארז.' : 'שיעורך בוטל. לפרטים נוספים צור קשר עם ארז.'
+        });
+      }
+
+      const remaining = (r.slots||[]).filter(s => s !== slot);
+      if (remaining.length === 0) {
+        await remove(ref(db, 'requests/' + cancelTargetId));
+      } else {
+        await update(ref(db, 'requests/' + cancelTargetId), { slots: remaining });
+      }
+    }
+    closeDialog('cancel-dialog');
+    const emailSent = r?.email && EMAILJS_SERVICE !== 'YOUR_SERVICE_ID';
+    showAlert(emailSent ? 'הפעולה בוצעה ונרשמה בלוג. נשלחה הודעה לתלמיד.' : 'הפעולה בוצעה ונרשמה בלוג.', 'info');
+    cancelTargetId = null;
+    cancelTargetSlot = null;
+  };
+
+  /* ===== שינוי מועד שיעור ===== */
+  let rescheduleTargetId   = null;
+  let rescheduleTargetSlot = null;
+  let rescheduleNewSlot    = null;
+  let rescheduleWeekOffset = 0;
+
+  window.startReschedule = async function(id, slot, name) {
+    rescheduleTargetId   = id;
+    rescheduleTargetSlot = slot;
+    rescheduleNewSlot    = null;
+    rescheduleWeekOffset = 0;
+    const parts = slot.split('_');
+    document.getElementById('reschedule-info').textContent =
+      `שינוי מועד עבור: ${name} | נוכחי: ${parts[0]} ${parts[1]} ${parts[2]}`;
+    document.getElementById('reschedule-selected').textContent = '';
+    renderRescheduleWeeks();
+    document.getElementById('reschedule-dialog').classList.add('show');
+  };
+
+  function renderRescheduleWeeks() {
+    const container = document.getElementById('reschedule-weeks');
+    container.innerHTML = '';
+    const extraW = parseInt(document.getElementById('extra-weeks')?.value || 4);
+    for (let i = 0; i <= extraW; i++) {
+      const ws = getWeekStart(i);
+      const we = new Date(ws); we.setDate(ws.getDate() + 6);
+      const btn = document.createElement('div');
+      btn.style.cssText = `padding:4px 10px; border-radius:20px; font-size:0.75rem; border:0.5px solid var(--border); background:${i===rescheduleWeekOffset?'var(--navy)':'var(--white)'}; color:${i===rescheduleWeekOffset?'#fff':'var(--navy)'}; cursor:pointer;`;
+      btn.textContent = formatDate(ws) + '—' + formatDate(we);
+      btn.onclick = () => { rescheduleWeekOffset = i; renderRescheduleWeeks(); renderRescheduleSlots(); };
+      container.appendChild(btn);
+    }
+    renderRescheduleSlots();
+  }
+
+  function renderRescheduleSlots() {
+    const container = document.getElementById('reschedule-slots');
+    container.innerHTML = '';
+    if (!schedule.length) { container.innerHTML = '<p style="font-size:0.8rem;color:var(--muted)">אין לוח זמנים</p>'; return; }
+    const ws  = getWeekStart(rescheduleWeekOffset);
+    const now = new Date();
+    const taken = new Set();
+    Object.values(allRequests).forEach(r => {
+      (r.slots||[]).forEach(s => {
+        if (r.status === 'approved' || r.status === 'pending') taken.add(s);
+      });
+    });
+    schedule.forEach(dayObj => {
+      const dayIndex = DAYS_HE.indexOf(dayObj.day);
+      if (dayIndex < 0) return;
+      const dayDate = new Date(ws); dayDate.setDate(ws.getDate() + dayIndex);
+      if (dayDate < now) return;
+      (dayObj.times||[]).forEach(t => {
+        const key = dayObj.day + '_' + formatDate(dayDate) + '_' + t;
+        if (key === rescheduleTargetSlot) return;
+        const isTaken    = taken.has(key);
+        const isSelected = key === rescheduleNewSlot;
+        const btn = document.createElement('div');
+        btn.style.cssText = `padding:4px 11px; border-radius:20px; font-size:0.78rem; cursor:${isTaken?'not-allowed':'pointer'}; border:0.5px solid ${isSelected?'var(--gold)':isTaken?'#e0e0e0':'rgba(26,39,68,0.2)'}; background:${isSelected?'rgba(201,149,42,0.2)':isTaken?'#f0f0f0':'var(--white)'}; color:${isTaken?'#bbb':'var(--navy)'}; ${isTaken?'text-decoration:line-through;':''}`;
+        btn.textContent = dayObj.day + ' ' + formatDate(dayDate) + ' ' + t;
+        if (!isTaken) btn.onclick = () => {
+          rescheduleNewSlot = key;
+          document.getElementById('reschedule-selected').textContent = '✅ נבחר: ' + btn.textContent;
+          renderRescheduleSlots();
+        };
+        container.appendChild(btn);
+      });
+    });
+  }
+
+  window.confirmReschedule = async function() {
+    if (!rescheduleTargetId || !rescheduleNewSlot) { showAlert('יש לבחור מועד חדש', 'error'); return; }
+    const snap = await get(ref(db, 'requests/' + rescheduleTargetId));
+    if (!snap.exists()) return;
+    const r = snap.val();
+    await remove(ref(db, 'requests/' + rescheduleTargetId));
+    const newRef = push(ref(db, 'requests'));
+    await set(newRef, { ...r, slots: [rescheduleNewSlot] });
+    await logAction({
+      reqId: newRef.key, name: r.name, phone: r.phone,
+      email: r.email||'', city: r.city||'',
+      slot: rescheduleNewSlot,
+      action: 'שונה',
+      status: `שונה מ: ${rescheduleTargetSlot} → ${rescheduleNewSlot}`,
+      by: 'מנהל'
+    });
+    closeDialog('reschedule-dialog');
+    showAlert('מועד השיעור שונה ✅', 'success');
+    rescheduleTargetId = rescheduleTargetSlot = rescheduleNewSlot = null;
+    renderWeeklyTable();
+  };
+
+  /* ===== לוח שבועי ===== */
+  let weeklyOffset = 0;
+
+  window.changeWeekView = function(dir) { weeklyOffset += dir; renderWeeklyTable(); };
+
+  function renderWeeklyTable() {
+    const ws = getWeekStart(weeklyOffset);
+    const we = new Date(ws); we.setDate(ws.getDate() + 6);
+    document.getElementById('week-label').textContent = formatDate(ws) + ' — ' + formatDate(we);
+
+    const table = document.getElementById('weekly-table');
+    table.innerHTML = '';
+
+    // כותרות
+    const headRow = document.createElement('tr');
+    headRow.innerHTML = '<th>יום</th><th>תאריך</th><th>שיעורים מאושרים</th>';
+    table.appendChild(headRow);
+
+    DAYS_HE.forEach((day, i) => {
+      const dayDate = new Date(ws); dayDate.setDate(ws.getDate() + i);
+      const dateStr = formatDate(dayDate);
+
+      const lessons = [];
+      Object.entries(allRequests).forEach(([id, r]) => {
+        if (r.status === 'approved') {
+          (r.slots||[]).forEach(s => {
+            const parts = s.split('_');
+            if (parts[0] === day && parts[1] === dateStr) {
+              lessons.push({ id, slot: s, name: r.name, city: r.city||'', time: parts[2], amount: r.amount||0, r });
+            }
+          });
+        }
+      });
+
+      lessons.sort((a,b) => a.time.localeCompare(b.time));
+
+      const tr = document.createElement('tr');
+      if (lessons.length) tr.classList.add('has-lesson');
+      tr.innerHTML = `
+        <td>${day}</td>
+        <td>${dateStr}</td>
+        <td>${lessons.length ? lessons.map(l =>
+          `<div class="lesson-cell" style="cursor:pointer; padding:3px 6px; border-radius:6px; transition:background 0.15s;"
+            onmouseover="this.style.background='rgba(201,149,42,0.15)'"
+            onmouseout="this.style.background=''"
+            onclick="startReschedule('${l.id}','${l.slot}','${l.name}')">
+            ✏️ ${l.time} — ${l.name}${l.city ? ' | 📍 '+l.city : ''}
+          </div>`).join('') : '<span style="color:var(--muted);font-size:0.75rem;">—</span>'}</td>`;
+      table.appendChild(tr);
+    });
+  }
+
+  /* ===== עריכת לוח ===== */
+  function renderScheduleForm() {
+    const form = document.getElementById('schedule-form');
+    form.innerHTML = '';
+
+    /* תמיד מציג את כל 7 הימים — ממזג עם מה שיש ב-Firebase */
+    const fullDays = DAYS_HE.map(dayName => {
+      const existing = schedule.find(d => d.day === dayName);
+      if (existing) return existing;
+      /* ששי ושבת — ברירת מחדל 12:00-18:00 */
+      if (dayName === 'שישי' || dayName === 'שבת') {
+        return { day: dayName, times: ['12:00','13:00','14:00','15:00','16:00','17:00','18:00'] };
+      }
+      return { day: dayName, times: [] };
+    });
+
+    fullDays.forEach((dayObj, i) => {
+      const div = document.createElement('div');
+      div.className = 'day-edit-row';
+      div.innerHTML = `
+        <div class="day-edit-name">${dayObj.day}</div>
+        <input class="times-input" id="day-${i}" value="${(dayObj.times||[]).join(', ')}" placeholder="16:00, 17:00, 18:00" />
+        <div class="hint">שעות מופרדות בפסיק</div>`;
+      form.appendChild(div);
+    });
+  }
+
+  window.saveSchedule = async function() {
+    const fullDays = DAYS_HE.map(dayName => {
+      const existing = schedule.find(d => d.day === dayName);
+      return existing || { day: dayName, times: [] };
+    });
+
+    const updated = fullDays.map((dayObj, i) => {
+      const raw = document.getElementById('day-' + i).value;
+      const times = raw.split(',').map(t => t.trim()).filter(t => /^\d{1,2}:\d{2}$/.test(t));
+      return { day: dayObj.day, times };
+    });
+    await set(ref(db, 'schedule'), updated);
+    schedule = updated;
+    showAlert('הלוח עודכן בהצלחה ✅', 'success');
+  };
+
+  window.saveExtraWeeks = async function() {
+    const val = parseInt(document.getElementById('extra-weeks').value) || 4;
+    await set(ref(db, 'settings/extraWeeks'), val);
+    showAlert('מספר השבועות עודכן ✅', 'success');
+  };
+
+  /* ===== ייצוא / ייבוא לוג ===== */
+  window.exportLog = async function(format) {
+    const snap = await get(ref(db, 'log'));
+    if (!snap.exists()) { showAlert('אין נתונים לייצוא', 'info'); return; }
+    const data = snap.val();
+
+    if (format === 'json') {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, 'log_backup.json');
+    } else {
+      const rows = [['תאריך','שם','טלפון','אימייל','יישוב','שיעור','פעולה','סטטוס','ע"י','סכום ₪']];
+      Object.values(data).sort((a,b) => a.timestamp - b.timestamp).forEach(l => {
+        const parts = (l.slot||'').split('_');
+        const date  = new Date(l.timestamp).toLocaleString('he-IL');
+        rows.push([date, l.name||'', l.phone||'', l.email||'', l.city||'', `${parts[0]||''} ${parts[1]||''} ${parts[2]||''}`, l.action||'', l.status||'', l.by||'', l.amount||'']);
+      });
+      downloadCSV(rows, 'log_backup.csv');
+    }
+  };
+
+  window.importLog = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const data = JSON.parse(text);
+      let count = 0;
+      for (const [, entry] of Object.entries(data)) {
+        const logRef = push(ref(db, 'log'));
+        await set(logRef, entry);
+        count++;
+      }
+      showAlert(`יובאו ${count} רשומות בהצלחה ✅`, 'success');
+      loadLogAll();
+    } catch (e) {
+      showAlert('שגיאה בקובץ — ודא שזה JSON תקין', 'error');
+    }
+    event.target.value = '';
+  };
+
+  /* ===== עזרי ייצוא ===== */
+  function downloadCSV(rows, filename) {
+    const bom = '\uFEFF';
+    const csv = bom + rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), filename);
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ===== לוג פעולות ===== */
+  let logAllData     = [];
+  let logStudentData = [];
+  let logAllSortDir  = 'desc';
+  let currentLogTab  = 'all';
+
+  window.switchLogTab = function(tab) {
+    currentLogTab = tab;
+    document.getElementById('log-view-all').style.display     = tab === 'all'     ? 'block' : 'none';
+    document.getElementById('log-view-student').style.display = tab === 'student' ? 'block' : 'none';
+    document.getElementById('log-tab-all').className     = 'btn btn-sm ' + (tab === 'all'     ? 'btn-navy' : 'btn-outline');
+    document.getElementById('log-tab-student').className  = 'btn btn-sm ' + (tab === 'student' ? 'btn-navy' : 'btn-outline');
+    if (tab === 'all') loadLogAll();
+  };
+
+  async function loadLogAll() {
+    const snap = await get(ref(db, 'log'));
+    logAllData = [];
+    if (snap.exists()) {
+      Object.entries(snap.val()).forEach(([id, l]) => {
+        logAllData.push({ logId: id, ...l });
+      });
+    }
+    renderLogAll();
+  }
+
+  window.updateLogSortBtns = function(active) {
+    const btns = {
+      'log-asc-btn':       active === 'asc',
+      'log-desc-btn':      active === 'desc' || active === 'date',
+      'log-name-asc-btn':  active === 'name-asc',
+      'log-name-desc-btn': active === 'name-desc',
+    };
+    Object.entries(btns).forEach(([id, on]) => {
+      const el = document.getElementById(id);
+      if (el) { el.style.background = on ? 'var(--navy)' : ''; el.style.color = on ? '#fff' : ''; }
+    });
+  };
+
+  window.renderLogAll = function() {
+    const list   = document.getElementById('log-all-list');
+    const search = (document.getElementById('log-all-search')?.value || '').toLowerCase();
+
+    let data = logAllData.filter(l =>
+      !search ||
+      (l.name||'').toLowerCase().includes(search) ||
+      (l.phone||'').includes(search) ||
+      (l.email||'').toLowerCase().includes(search) ||
+      (l.city||'').toLowerCase().includes(search) ||
+      (l.slot||'').toLowerCase().includes(search) ||
+      (l.action||'').includes(search) ||
+      (l.status||'').includes(search) ||
+      (l.by||'').includes(search) ||
+      String(l.amount||'').includes(search)
+    );
+
+    if (logAllSortDir === 'name-asc') {
+      data.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'he'));
+    } else if (logAllSortDir === 'name-desc') {
+      data.sort((a,b) => (b.name||'').localeCompare(a.name||'', 'he'));
+    } else {
+      data.sort((a,b) => logAllSortDir === 'asc' ? a.timestamp - b.timestamp : b.timestamp - a.timestamp);
+    }
+
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">אין רשומות</p>'; return; }
+    data.forEach(l => renderLogItem(list, l));
+  };
+
+  window.loadLogByStudent = async function() {
+    const rawPhone = document.getElementById('log-student-phone').value.trim();
+    const phone = rawPhone.replace(/[-\s]/g,'');
+    if (!phone || phone.length < 10) { showAlert('מספר טלפון לא תקין', 'error'); return; }
+
+    const snap = await get(ref(db, 'log'));
+    logStudentData = [];
+    if (snap.exists()) {
+      Object.entries(snap.val()).forEach(([id, l]) => {
+        if ((l.phone||'') === phone) logStudentData.push({ logId: id, ...l });
+      });
+    }
+    document.getElementById('log-student-search').style.display = logStudentData.length ? 'block' : 'none';
+    renderLogStudent();
+  };
+
+  window.renderLogStudent = function() {
+    const list   = document.getElementById('log-student-list');
+    const search = (document.getElementById('log-student-search')?.value || '').toLowerCase();
+
+    let data = logStudentData.filter(l =>
+      !search || (l.slot||'').toLowerCase().includes(search) ||
+      (l.action||'').includes(search) || (l.status||'').includes(search)
+    );
+
+    data.sort((a,b) => a.timestamp - b.timestamp);
+
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">לא נמצאו רשומות</p>'; return; }
+
+    data.forEach(l => renderLogItem(list, l));
+  };
+
+  function renderLogItem(container, l) {
+    const parts    = (l.slot||'').split('_');
+    const slotText = parts.length >= 3 ? `${parts[0]} ${parts[1]} ${parts[2]}` : l.slot||'';
+    const date     = new Date(l.timestamp);
+    const dateStr  = date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit' });
+    const byColor  = l.by === 'מנהל' ? 'var(--navy)' : 'var(--green)';
+
+    const div = document.createElement('div');
+    div.className = 'request-item';
+    div.innerHTML = `
+      <div class="req-header">
+        <span class="req-name">${l.name||'—'}</span>
+        <span style="font-size:0.75rem; color:var(--muted);">${dateStr}</span>
+      </div>
+      <div class="req-detail">📱 ${(l.phone||'').slice(0,3)+'-'+(l.phone||'').slice(3)}${l.email ? ' | ✉️ ' + l.email : ''}${l.city ? ' | 📍 ' + l.city : ''}</div>
+      ${slotText ? `<div class="req-detail">🕐 ${slotText}</div>` : ''}
+      <div class="req-detail">
+        <span style="font-weight:500;">פעולה:</span> ${l.action||''}
+        &nbsp;|&nbsp;
+        <span style="font-weight:500;">סטטוס:</span> ${l.status||''}
+        &nbsp;|&nbsp;
+        <span style="color:${byColor}; font-weight:500;">ע"י: ${l.by||''}</span>
+        ${l.amount ? `&nbsp;|&nbsp;<span style="color:var(--green);font-weight:500;">💰 ${l.amount} ₪</span>` : ''}
+      </div>
+      <div class="req-actions">
+        <button class="btn btn-red" onclick="deleteLogItem('${l.logId}')">🗑️ מחק</button>
+      </div>`;
+    container.appendChild(div);
+  }
+
+  window.deleteLogItem = async function(logId) {
+    await remove(ref(db, 'log/' + logId));
+    showAlert('הרשומה נמחקה', 'info');
+    if (currentLogTab === 'all') loadLogAll();
+    else renderLogStudent();
+  };
+
+  window.importLog = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const items = JSON.parse(text);
+      if (!Array.isArray(items)) { showAlert('קובץ לא תקין', 'error'); return; }
+      const updates = [];
+      items.forEach(item => {
+        const { logId, ...data } = item;
+        const newRef = push(ref(db, 'log'));
+        updates.push(set(newRef, data));
+      });
+      await Promise.all(updates);
+      showAlert(`יובאו ${items.length} רשומות ✅`, 'success');
+      loadLogAll();
+    } catch (e) {
+      showAlert('שגיאה בקריאת הקובץ', 'error');
+    }
+    event.target.value = '';
+  };
+
+  /* ===== השוואת גיבויים ===== */
+  let compareData = { 1: null, 2: null };
+
+  window.openCompareDialog = function() {
+    compareData = { 1: null, 2: null };
+    document.getElementById('compare-name1').textContent = '';
+    document.getElementById('compare-name2').textContent = '';
+    document.getElementById('compare-result').innerHTML  = '';
+    document.getElementById('compare-file1').value = '';
+    document.getElementById('compare-file2').value = '';
+    document.getElementById('compare-dialog').classList.add('show');
+  };
+
+  window.compareFileSelected = async function(num, input) {
+    const file = input.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      compareData[num] = JSON.parse(text);
+      document.getElementById('compare-name' + num).textContent = file.name;
+    } catch {
+      showAlert('קובץ לא תקין', 'error');
+    }
+  };
+
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleString('he-IL', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function fmtRecord(r, key) {
+    if (!r) return key;
+    const parts = [];
+    if (r.name)       parts.push(`שם: ${r.name}`);
+    if (r.phone)      parts.push(`טל: ${r.phone}`);
+    if (r.email)      parts.push(`מייל: ${r.email}`);
+    if (r.city)       parts.push(`יישוב: ${r.city}`);
+    if (r.notes)      parts.push(`הערות: ${r.notes}`);
+    if (r.slot)       parts.push(`שיעור: ${r.slot}`);
+    if (r.slots)      parts.push(`שיעורים: ${Array.isArray(r.slots) ? r.slots.join(', ') : r.slots}`);
+    if (r.status)     parts.push(`סטטוס: ${r.status}`);
+    if (r.action)     parts.push(`פעולה: ${r.action}`);
+    if (r.by)         parts.push(`ע"י: ${r.by}`);
+    if (r.amount)     parts.push(`סכום: ${r.amount} ₪`);
+    if (r.reqId)      parts.push(`מזהה: ${r.reqId}`);
+    if (r.timestamp)  parts.push(`זמן פעולה: ${fmtDate(r.timestamp)}`);
+    if (r.updatedAt)  parts.push(`עודכן: ${fmtDate(r.updatedAt)}`);
+    if (r.cancelledAt) parts.push(`בוטל: ${fmtDate(r.cancelledAt)}`);
+    if (r.archivedAt)  parts.push(`אורכב: ${fmtDate(r.archivedAt)}`);
+    return parts.length ? parts.join('<br>') : key;
+  }
+
+  function diffFields(r1, r2) {
+    const diffs = [];
+    const allKeys = new Set([...Object.keys(r1||{}), ...Object.keys(r2||{})]);
+    allKeys.forEach(k => {
+      if (k === 'updatedAt' || k === 'timestamp') return;
+      const v1 = JSON.stringify(r1?.[k]), v2 = JSON.stringify(r2?.[k]);
+      if (v1 !== v2) {
+        const label = { name:'שם', phone:'טלפון', email:'אימייל', city:'יישוב',
+          status:'סטטוס', amount:'סכום', slots:'שעות', notes:'הערות',
+          action:'פעולה', by:'ע"י', slot:'שיעור' }[k] || k;
+        diffs.push(`${label}: ${r1?.[k]||'—'} ← ${r2?.[k]||'—'}`);
+      }
+    });
+    return diffs;
+  }
+
+  window.runCompare = function() {
+    if (!compareData[1] || !compareData[2]) {
+      showAlert('יש לבחור שני קבצים', 'error'); return;
+    }
+    const b1 = compareData[1], b2 = compareData[2];
+    const result = document.getElementById('compare-result');
+
+    const t1 = b1.exportedAt ? fmtDate(new Date(b1.exportedAt).getTime()) : '—';
+    const t2 = b2.exportedAt ? fmtDate(new Date(b2.exportedAt).getTime()) : '—';
+    result.innerHTML = `<p style="font-size:0.78rem; color:var(--muted); margin-bottom:0.8rem;">גיבוי 1: ${t1} &nbsp;|&nbsp; גיבוי 2: ${t2}</p>`;
+
+    const tables = [
+      { key: 'requests', label: 'בקשות'      },
+      { key: 'students', label: 'תלמידים'    },
+      { key: 'log',      label: 'לוג פעולות' },
+      { key: 'schedule', label: 'לוח זמנים'  },
+    ];
+
+    let totalChanges = 0;
+
+    tables.forEach(({ key, label }) => {
+      const d1 = b1[key] || {};
+      const d2 = b2[key] || {};
+
+      if (key === 'schedule') {
+        const s1 = JSON.stringify(d1), s2 = JSON.stringify(d2);
+        if (s1 !== s2) {
+          totalChanges++;
+          result.innerHTML += `<div style="margin-bottom:1rem;">
+            <strong style="color:var(--navy);">📋 ${label}</strong>
+            <div style="background:#fff8e6; border-radius:6px; padding:6px 10px; margin-top:0.3rem; font-size:0.78rem; color:#7a5a10;">
+              ✏️ לוח הזמנים השתנה<br>
+              <span style="font-size:0.72rem;">לפני: ${JSON.stringify(d1)}<br>אחרי: ${JSON.stringify(d2)}</span>
+            </div>
+          </div>`;
+        }
+        return;
+      }
+
+      const keys1 = new Set(Object.keys(d1));
+      const keys2 = new Set(Object.keys(d2));
+      const added   = [...keys2].filter(k => !keys1.has(k));
+      const removed = [...keys1].filter(k => !keys2.has(k));
+      const changed = [...keys1].filter(k => keys2.has(k) && JSON.stringify(d1[k]) !== JSON.stringify(d2[k]));
+
+      if (!added.length && !removed.length && !changed.length) return;
+      totalChanges += added.length + removed.length + changed.length;
+
+      let html = `<div style="margin-bottom:1.2rem;"><strong style="color:var(--navy);">📋 ${label} (${added.length} נוספו, ${removed.length} נמחקו, ${changed.length} שונו)</strong><div style="margin-top:0.4rem;">`;
+
+      added.forEach(k => {
+        const r = d2[k];
+        html += `<div style="background:var(--green-bg); border-radius:6px; padding:8px 12px; margin-bottom:6px; font-size:0.78rem; line-height:1.7;">
+          <strong>✅ נוסף</strong><br>${fmtRecord(r, k)}
+        </div>`;
+      });
+
+      removed.forEach(k => {
+        const r = d1[k];
+        html += `<div style="background:var(--red-bg); border-radius:6px; padding:8px 12px; margin-bottom:6px; font-size:0.78rem; line-height:1.7;">
+          <strong>❌ נמחק</strong><br>${fmtRecord(r, k)}
+        </div>`;
+      });
+
+      changed.forEach(k => {
+        const r1 = d1[k], r2 = d2[k];
+        const diffs = diffFields(r1, r2);
+        html += `<div style="background:#fff8e6; border-radius:6px; padding:8px 12px; margin-bottom:6px; font-size:0.78rem; color:#7a5a10; line-height:1.7;">
+          <strong>✏️ שונה</strong><br>${fmtRecord(r2, k)}
+          ${diffs.length ? `<br><strong style="font-size:0.72rem;">שינויים: </strong><span style="font-size:0.72rem;">${diffs.join(' &nbsp;•&nbsp; ')}</span>` : ''}
+        </div>`;
+      });
+
+      html += '</div></div>';
+      result.innerHTML += html;
+    });
+
+    if (totalChanges === 0) {
+      result.innerHTML += '<p style="color:var(--green); text-align:center; padding:1rem;">✅ אין הבדלים בין שני הגיבויים</p>';
+    } else {
+      result.innerHTML = `<p style="font-size:0.78rem; color:var(--muted); margin-bottom:0.8rem;">גיבוי 1: ${t1} &nbsp;|&nbsp; גיבוי 2: ${t2} &nbsp;|&nbsp; <strong>סה"כ ${totalChanges} שינויים</strong></p>` + result.innerHTML.replace(`<p style="font-size:0.78rem; color:var(--muted); margin-bottom:0.8rem;">גיבוי 1: ${t1} &nbsp;|&nbsp; גיבוי 2: ${t2}</p>`, '');
+    }
+  };
+
+  /* ===== גיבוי ושחזור מלא ===== */
+  window.exportFullBackup = async function() {
+    showAlert('מכין גיבוי...', 'info');
+    const [reqSnap, studSnap, schSnap, logSnap] = await Promise.all([
+      get(ref(db, 'requests')),
+      get(ref(db, 'students')),
+      get(ref(db, 'schedule')),
+      get(ref(db, 'log'))
+    ]);
+    const backup = {
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+      requests: reqSnap.exists()  ? reqSnap.val()  : {},
+      students: studSnap.exists() ? studSnap.val() : {},
+      schedule: schSnap.exists()  ? schSnap.val()  : [],
+      log:      logSnap.exists()  ? logSnap.val()  : {}
+    };
+    const date = new Date().toLocaleDateString('he-IL').replace(/\./g,'-');
+    downloadBlob(
+      new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }),
+      `erez-backup-${date}.json`
+    );
+    showAlert('הגיבוי הורד בהצלחה ✅', 'success');
+  };
+
+  window.importFullBackup = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!confirm('שחזור יחליף את כל הנתונים הקיימים. להמשיך?')) {
+      event.target.value = ''; return;
+    }
+    try {
+      const text = await file.text();
+      const backup = JSON.parse(text);
+      if (!backup.version) { showAlert('קובץ לא תקין', 'error'); return; }
+
+      showAlert('משחזר נתונים...', 'info');
+      const updates = [];
+      if (backup.requests) updates.push(set(ref(db, 'requests'), backup.requests));
+      if (backup.students) updates.push(set(ref(db, 'students'), backup.students));
+      if (backup.schedule) updates.push(set(ref(db, 'schedule'), backup.schedule));
+      if (backup.log)      updates.push(set(ref(db, 'log'),      backup.log));
+      await Promise.all(updates);
+      showAlert('השחזור הושלם בהצלחה ✅', 'success');
+      /* טען מחדש */
+      const [schSnap, reqSnap, ewSnap] = await Promise.all([
+        get(ref(db, 'schedule')),
+        get(ref(db, 'requests')),
+        get(ref(db, 'settings/extraWeeks'))
+      ]);
+      schedule = schSnap.exists() ? schSnap.val() : DEFAULT_SCHEDULE;
+      allRequests = reqSnap.exists() ? reqSnap.val() : {};
+      renderRequests();
+      renderScheduleForm();
+    } catch (e) {
+      showAlert('שגיאה בקריאת הקובץ', 'error');
+    }
+    event.target.value = '';
+  };
+
+  /* ===== ניהול תלמידים ===== */
+  let studentsData      = [];
+  let studentsSortField = 'name';
+  let studentsSortDir   = 'asc';
+
+  window.updateStudentSortBtns = function() {
+    document.getElementById('st-asc-btn').style.background  = studentsSortDir === 'asc'  ? 'var(--navy)' : '';
+    document.getElementById('st-asc-btn').style.color       = studentsSortDir === 'asc'  ? '#fff'        : '';
+    document.getElementById('st-desc-btn').style.background = studentsSortDir === 'desc' ? 'var(--navy)' : '';
+    document.getElementById('st-desc-btn').style.color      = studentsSortDir === 'desc' ? '#fff'        : '';
+  };
+
+  async function loadStudents() {
+    const snap = await get(ref(db, 'students'));
+    studentsData = [];
+    if (snap.exists()) {
+      Object.entries(snap.val()).forEach(([phone, s]) => {
+        studentsData.push({ phone, name: s.name||'', email: s.email||'', city: s.city||'', notes: s.notes||'', updatedAt: s.updatedAt||0 });
+      });
+    }
+    renderStudents();
+  }
+
+  function renderStudents() {
+    const list = document.getElementById('students-list');
+    const search = (document.getElementById('st-search')?.value || '').toLowerCase();
+
+    let data = studentsData.filter(s =>
+      !search ||
+      s.name.toLowerCase().includes(search) ||
+      s.phone.includes(search) ||
+      s.email.toLowerCase().includes(search) ||
+      s.city.toLowerCase().includes(search) ||
+      s.notes.toLowerCase().includes(search)
+    );
+
+    data.sort((a,b) => {
+      const dir = studentsSortDir === 'asc' ? 1 : -1;
+      return a.name.localeCompare(b.name, 'he') * dir;
+    });
+
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">לא נמצאו תלמידים</p>'; return; }
+
+    data.forEach(s => {
+      const joinDate = s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('he-IL') : '—';
+      const div = document.createElement('div');
+      div.className = 'request-item';
+      div.innerHTML = `
+        <div class="req-header">
+          <span class="req-name">${s.name || '—'}</span>
+          <span style="font-size:0.72rem; color:var(--muted);">הצטרף: ${joinDate}</span>
+        </div>
+        <div class="req-detail">📱 ${s.phone.slice(0,3)+'-'+s.phone.slice(3)}</div>
+        ${s.email ? `<div class="req-detail">✉️ ${s.email}</div>` : ''}
+        ${s.city  ? `<div class="req-detail">📍 ${s.city}</div>`  : ''}
+        ${s.notes ? `<div class="req-detail">📝 ${s.notes}</div>` : ''}
+        <div class="req-actions">
+          <button class="btn btn-outline btn-sm" onclick="editStudent('${s.phone}')">✏️ עריכה</button>
+          <button class="btn btn-red" onclick="deleteStudent('${s.phone}')">🗑️ מחק</button>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  window.filterStudents = renderStudents;
+  window.sortStudents = function(field) { studentsSortField = field; renderStudents(); };
+
+  window.saveStudent = async function() {
+    const name  = document.getElementById('st-name').value.trim();
+    const phone = document.getElementById('st-phone').value.trim().replace(/[-\s]/g,'');
+    const email = document.getElementById('st-email').value.trim();
+    const city  = document.getElementById('st-city').value.trim();
+    const notes = document.getElementById('st-notes').value.trim();
+    const errEl = document.getElementById('st-error');
+    errEl.textContent = '';
+
+    if (!name)  { errEl.textContent = 'שם חובה'; return; }
+    if (!/^05\d{8}$/.test(phone)) { errEl.textContent = 'טלפון לא תקין — נדרש: 05X-XXXXXXX'; return; }
+
+    await set(ref(db, 'students/' + phone), { name, email, city, notes, updatedAt: Date.now() });
+    showAlert('התלמיד נשמר ✅', 'success');
+    clearStudentForm();
+    loadStudents();
+  };
+
+  window.editStudent = function(phone) {
+    const s = studentsData.find(s => s.phone === phone);
+    if (!s) return;
+    document.getElementById('st-name').value  = s.name;
+    document.getElementById('st-phone').value = s.phone.slice(0,3)+'-'+s.phone.slice(3);
+    document.getElementById('st-email').value = s.email;
+    document.getElementById('st-city').value  = s.city;
+    document.getElementById('st-notes').value = s.notes;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.deleteStudent = async function(phone) {
+    if (!confirm('למחוק את התלמיד? הפעולה בלתי הפיכה.')) return;
+    await remove(ref(db, 'students/' + phone));
+    showAlert('התלמיד נמחק', 'info');
+    loadStudents();
+  };
+
+  window.clearStudentForm = function() {
+    document.getElementById('st-name').value  = '';
+    document.getElementById('st-phone').value = '';
+    document.getElementById('st-email').value = '';
+    document.getElementById('st-city').value  = '';
+    document.getElementById('st-notes').value = '';
+    document.getElementById('st-error').textContent = '';
+  };
+</script>
+
+</body>
+</html>
