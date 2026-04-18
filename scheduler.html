@@ -432,7 +432,8 @@
       <div class="schedule-grid" id="student-schedule">
         <div class="spinner">טוען זמנים...</div>
       </div>
-      <p style="font-size:0.75rem; color:var(--muted); margin-top:0.8rem;">ניתן לבחור עד 3 זמנים</p>
+      <p style="font-size:0.75rem; color:var(--muted); margin-top:0.8rem;">ניתן לבחור עד <span id="max-lessons-text">3</span> זמנים</p>
+      <p id="remaining-notice" style="font-size:0.75rem; color:var(--navy); margin-top:0.3rem;"></p>
     </div>
 
     <button class="btn btn-gold" onclick="submitRequest()">שלח בקשה לאישור ←</button>
@@ -665,6 +666,9 @@
     const clean = parsePhone(phone);
     setSessionPhone(clean);
 
+    /* עדכן הודעת נותרו */
+    updateRemainingNotice();
+
     /* חפש ברשימת התלמידים השמורה */
     const studentSnap = await get(ref(db, 'students/' + clean));
     if (studentSnap.exists()) {
@@ -718,6 +722,29 @@
     });
   }
 
+  async function updateRemainingNotice() {
+    const el = document.getElementById('remaining-notice');
+    if (!el || !sessionPhone) return;
+    const snap = await get(ref(db, 'requests'));
+    const now = new Date();
+    let activeCount = 0;
+    if (snap.exists()) {
+      Object.values(snap.val()).forEach(r => {
+        if (r.phone === sessionPhone && (r.status === 'approved' || r.status === 'pending')) {
+          (r.slots||[]).forEach(s => { if (slotToDate(s) >= now) activeCount++; });
+        }
+      });
+    }
+    const remaining = maxLessons - activeCount;
+    if (remaining <= 0) {
+      el.textContent = `הגעת למכסה המקסימלית של ${maxLessons} שיעורים.`;
+      el.style.color = 'var(--red)';
+    } else {
+      el.textContent = `נותרו לך ${remaining} שיעורים מתוך ${maxLessons} אפשריים.`;
+      el.style.color = 'var(--navy)';
+    }
+  }
+
   /* ===== לוח זמנים ===== */
   let schedule = [];
   let selectedSlots = new Set();
@@ -735,6 +762,10 @@
     ]);
     if (ewSnap.exists()) extraWeeks = ewSnap.val();
     if (mlSnap.exists()) maxLessons = mlSnap.val();
+
+    /* עדכן טקסט מכסה */
+    document.getElementById('max-lessons-text').textContent = maxLessons;
+    updateRemainingNotice();
 
     /* טעינת טלפון שמור */
     const saved = localStorage.getItem('erez_phone');
