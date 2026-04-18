@@ -982,14 +982,7 @@
   window.markOccurred = async function(id, slot, occurred) {
     const snap = await get(ref(db, 'requests/' + id));
     if (!snap.exists()) return;
-    const r = snap.val();
     await update(ref(db, 'requests/' + id), { occurred });
-    await logAction({
-      reqId: id, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'',
-      slot, action: occurred ? 'סומן כהתקיים' : 'סומן כלא התקיים',
-      status: occurred ? 'התקיים' : 'לא התקיים',
-      by: 'מנהל', amount: r.amount||0
-    });
     showAlert(occurred ? 'סומן כהתקיים ✅' : 'סומן כלא התקיים', 'info');
   };
 
@@ -997,6 +990,21 @@
     const snap = await get(ref(db, 'requests/' + id));
     if (!snap.exists()) return;
     const r = snap.val();
+    const isApproved = r.status === 'approved';
+    const occurred   = r.occurred === true;
+
+    /* לוג רק לשיעורים מאושרים */
+    if (isApproved) {
+      await logAction({
+        reqId: id, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'',
+        slot,
+        action: occurred ? 'התקיים' : 'לא התקיים',
+        status: occurred ? 'התקיים' : 'לא התקיים',
+        by: 'מנהל',
+        amount: occurred ? (r.amount||0) : -(r.amount||0)
+      });
+    }
+
     const remaining = (r.slots||[]).filter(s => s !== slot);
     if (remaining.length === 0) {
       await remove(ref(db, 'requests/' + id));
