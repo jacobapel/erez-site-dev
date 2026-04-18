@@ -867,7 +867,18 @@
       selectedSlots.delete(key);
       btn.classList.remove('selected');
     } else {
-      if (selectedSlots.size >= maxLessons) { showAlert(`ניתן לבחור עד ${maxLessons} זמנים בלבד בכל בקשה`, 'error'); return; }
+      /* בדוק מכסה כוללת: בחירות נוכחיות + שיעורים פעילים */
+      const now = new Date();
+      let activeCount = 0;
+      Object.values(allRequests).forEach(r => {
+        if (r.phone === sessionPhone && (r.status === 'approved' || r.status === 'pending')) {
+          (r.slots||[]).forEach(s => { if (slotToDate(s) >= now) activeCount++; });
+        }
+      });
+      if (selectedSlots.size + activeCount >= maxLessons) {
+        showAlert(`הגעת למכסה המקסימלית של ${maxLessons} שיעורים`, 'error');
+        return;
+      }
       selectedSlots.add(key);
       btn.classList.add('selected');
     }
