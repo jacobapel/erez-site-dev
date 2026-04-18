@@ -965,8 +965,16 @@
 
   function renderMyLessons() {
     const list = document.getElementById('my-lessons-list');
+    const now = new Date();
 
-    let data = [...myLessonsData];
+    let data = myLessonsData.filter(l => {
+      /* הסתר שיעורים שעברו — רק אם מאושרים או ממתינים */
+      if (l.status === 'approved' || l.status === 'pending') {
+        return slotToDate(l.slot) >= now;
+      }
+      return true; // נדחים תמיד יוצגו
+    });
+
     data.sort((a,b) => {
       const da = slotToDate(a.slot), db2 = slotToDate(b.slot);
       return myLessonsSortDir === 'asc' ? da - db2 : db2 - da;

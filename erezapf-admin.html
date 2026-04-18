@@ -834,7 +834,7 @@
         <div class="req-detail">📱 ${r.phone}${r.email ? ' | ✉️ ' + r.email : ''}${r.city ? ' | 📍 ' + r.city : ''}</div>
         <div style="margin-top:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
           <span style="background:var(--gold-bg);color:#7a5a10;border-radius:12px;padding:2px 8px;font-size:0.75rem;">🕐 ${slotText}</span>
-          ${!isPending && r.amount ? `<span style="background:var(--green-bg);color:var(--green);border-radius:12px;padding:2px 8px;font-size:0.75rem;">💰 ${r.amount} ₪</span>` : ''}
+          ${r.amount ? `<span style="background:var(--green-bg);color:var(--green);border-radius:12px;padding:2px 8px;font-size:0.75rem;">💰 ${r.amount} ₪</span>` : ''}
           ${!isPending ? `<input type="number" placeholder="סכום ₪" value="${r.amount||''}" min="0" style="width:90px;padding:3px 6px;border:0.5px solid var(--border);border-radius:6px;font-size:0.78rem;" onchange="updateAmount('${id}',this.value)" />` : ''}
         </div>
         <div class="req-actions">
@@ -937,9 +937,10 @@
     if (!slots.length) { container.innerHTML = '<p style="font-size:0.83rem;color:var(--muted)">אין בקשות שפג תקפן</p>'; return; }
 
     slots.forEach(({ id, slot, slotText, r }) => {
+      const occurred = r.occurred === true;
       const div = document.createElement('div');
       div.className = 'request-item';
-      div.style.opacity = '0.75';
+      div.style.opacity = '0.85';
       div.innerHTML = `
         <div class="req-header">
           <div>
@@ -949,15 +950,37 @@
           <span style="font-size:0.72rem; color:var(--red);">פג תוקף</span>
         </div>
         <div class="req-detail">📱 ${r.phone}${r.email ? ' | ✉️ ' + r.email : ''}${r.city ? ' | 📍 ' + r.city : ''}</div>
-        <div style="margin-top:0.4rem;">
+        <div style="margin-top:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
           <span style="background:#f0f0f0;color:var(--muted);border-radius:12px;padding:2px 8px;font-size:0.75rem;">🕐 ${slotText}</span>
+          ${r.amount ? `<span style="background:var(--green-bg);color:var(--green);border-radius:12px;padding:2px 8px;font-size:0.75rem;">💰 ${r.amount} ₪</span>` : ''}
         </div>
+        ${r.status === 'approved' ? `
+        <div style="margin-top:0.5rem; display:flex; align-items:center; gap:8px;">
+          <label style="font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" ${occurred ? 'checked' : ''} onchange="window.markOccurred('${id}','${slot}',this.checked)" style="width:16px;height:16px;cursor:pointer;" />
+            <span style="color:${occurred ? 'var(--green)' : 'var(--muted)'};">${occurred ? '✅ התקיים' : 'לא סומן — לא התקיים'}</span>
+          </label>
+        </div>` : ''}
         <div class="req-actions">
           <button class="btn btn-red" onclick="deleteExpiredSlot('${id}','${slot}')">🗑️ מחק</button>
         </div>`;
       container.appendChild(div);
     });
   }
+
+  window.markOccurred = async function(id, slot, occurred) {
+    const snap = await get(ref(db, 'requests/' + id));
+    if (!snap.exists()) return;
+    const r = snap.val();
+    await update(ref(db, 'requests/' + id), { occurred });
+    await logAction({
+      reqId: id, name: r.name, phone: r.phone, email: r.email||'', city: r.city||'',
+      slot, action: occurred ? 'סומן כהתקיים' : 'סומן כלא התקיים',
+      status: occurred ? 'התקיים' : 'לא התקיים',
+      by: 'מנהל', amount: r.amount||0
+    });
+    showAlert(occurred ? 'סומן כהתקיים ✅' : 'סומן כלא התקיים', 'info');
+  };
 
   window.deleteExpiredSlot = async function(id, slot) {
     const snap = await get(ref(db, 'requests/' + id));
