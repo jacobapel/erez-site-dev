@@ -416,6 +416,15 @@
           <button class="btn btn-navy btn-sm" onclick="saveExtraWeeks()">שמור</button>
         </div>
       </div>
+      <div class="card">
+        <div class="card-title">מספר שיעורים מקסימלי להזמנה</div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.8rem;">כמה שיעורים (מאושרים + ממתינים) רשאי תלמיד להחזיק בו זמנית</p>
+        <div style="display:flex; align-items:center; gap:0.8rem;">
+          <input type="number" id="max-lessons" min="1" max="20" value="3" style="width:80px; padding:0.5rem; border:0.5px solid var(--border); border-radius:6px; font-size:0.9rem; text-align:center;" />
+          <span style="font-size:0.82rem; color:var(--muted);">שיעורים</span>
+          <button class="btn btn-navy btn-sm" onclick="window.saveMaxLessons()">שמור</button>
+        </div>
+      </div>
     </div>
 
     <!-- ===== תלמידים ===== -->
@@ -736,15 +745,17 @@
   ];
 
   async function initAdmin() {
-    const [schSnap, reqSnap, ewSnap] = await Promise.all([
+    const [schSnap, reqSnap, ewSnap, mlSnap] = await Promise.all([
       get(ref(db, 'schedule')),
       get(ref(db, 'requests')),
-      get(ref(db, 'settings/extraWeeks'))
+      get(ref(db, 'settings/extraWeeks')),
+      get(ref(db, 'settings/maxLessons'))
     ]);
 
     schedule = schSnap.exists() ? schSnap.val() : DEFAULT_SCHEDULE;
     allRequests = reqSnap.exists() ? reqSnap.val() : {};
     if (ewSnap.exists()) document.getElementById('extra-weeks').value = ewSnap.val();
+    if (mlSnap.exists()) document.getElementById('max-lessons').value = mlSnap.val();
 
     renderScheduleForm();
     renderRequests();
@@ -1276,6 +1287,12 @@
     const val = parseInt(document.getElementById('extra-weeks').value) || 4;
     await set(ref(db, 'settings/extraWeeks'), val);
     showAlert('מספר השבועות עודכן ✅', 'success');
+  };
+
+  window.saveMaxLessons = async function() {
+    const val = parseInt(document.getElementById('max-lessons').value) || 3;
+    await set(ref(db, 'settings/maxLessons'), val);
+    showAlert('מספר השיעורים המקסימלי עודכן ✅', 'success');
   };
 
   /* ===== ייצוא / ייבוא לוג ===== */

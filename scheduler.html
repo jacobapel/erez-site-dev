@@ -723,13 +723,18 @@
   let selectedSlots = new Set();
   let currentWeekOffset = 0;
   let allRequests = {};
-  let extraWeeks = 4; // ברירת מחדל — 4 שבועות קדימה
+  let extraWeeks = 4;
+  let maxLessons = 3; // ברירת מחדל
 
   async function loadSchedule() {
     const snap = await get(ref(db, 'schedule'));
     schedule = snap.exists() ? snap.val() : [];
-    const ewSnap = await get(ref(db, 'settings/extraWeeks'));
+    const [ewSnap, mlSnap] = await Promise.all([
+      get(ref(db, 'settings/extraWeeks')),
+      get(ref(db, 'settings/maxLessons'))
+    ]);
     if (ewSnap.exists()) extraWeeks = ewSnap.val();
+    if (mlSnap.exists()) maxLessons = mlSnap.val();
 
     /* טעינת טלפון שמור */
     const saved = localStorage.getItem('erez_phone');
@@ -831,7 +836,7 @@
       selectedSlots.delete(key);
       btn.classList.remove('selected');
     } else {
-      if (selectedSlots.size >= 3) { showAlert('ניתן לבחור עד 3 זמנים בלבד בכל בקשה', 'error'); return; }
+      if (selectedSlots.size >= maxLessons) { showAlert(`ניתן לבחור עד ${maxLessons} זמנים בלבד בכל בקשה`, 'error'); return; }
       selectedSlots.add(key);
       btn.classList.add('selected');
     }
@@ -891,16 +896,19 @@
     const cleanPhone = parsePhone(phone);
     const snap = await get(ref(db, 'requests'));
     let activeCount = 0;
+    const now = new Date();
     if (snap.exists()) {
       Object.values(snap.val()).forEach(r => {
         if (r.phone === cleanPhone && (r.status === 'approved' || r.status === 'pending')) {
-          activeCount += (r.slots||[]).length;
+          (r.slots||[]).forEach(s => {
+            if (slotToDate(s) >= now) activeCount++;
+          });
         }
       });
     }
     const total = activeCount + selectedSlots.size;
-    if (total > 3) {
-      showAlert(`יש לך כבר ${activeCount} שיעורים פעילים. ניתן לבקש עד 3 שיעורים בסה"כ (מאושרים + ממתינים).`, 'error');
+    if (total > maxLessons) {
+      showAlert(`יש לך כבר ${activeCount} שיעורים פעילים. ניתן לבקש עד ${maxLessons} שיעורים בסה"כ (מאושרים + ממתינים).`, 'error');
       return;
     }
 
